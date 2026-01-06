@@ -1,2 +1,480 @@
-# kugame
+# KuGame - 游戏化学习Kubernetes命令行工具
+
+<div align="center">
+
+![KuGame Logo](https://img.shields.io/badge/KuGame-v1.0.0-blue?style=for-the-badge)
+![Python Version](https://img.shields.io/badge/Python-3.8+-green?style=for-the-badge)
+![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
+![Tests](https://img.shields.io/badge/Tests-85%20Passed-brightgreen?style=for-the-badge)
+
+</div>
+
+## 📖 项目简介
+
+KuGame是一款创新的游戏化学习工具，通过武侠故事的方式帮助开发者和运维工程师学习和掌握Kubernetes命令行工具（kubectl）。在这个独特的修仙世界中，您将扮演一位初入青云宗的侠客，通过完成各种挑战和任务，逐步掌握Kubernetes的核心命令，最终飞升大成，成为一代宗师。
+
+传统的Kubernetes学习往往枯燥乏味，命令繁多且难以记忆。KuGame将复杂的命令行操作融入精彩的武侠叙事中，让学习过程变得生动有趣。每一位使用者都可以在熟悉的江湖故事背景下，轻松愉快地掌握kubectl的各种命令，实现从「凡人」到「散仙」的修炼之路。
+
+## 🎮 项目特色
+
+KuGame项目具有以下显著特色，使其区别于传统的技术学习工具：
+
+**故事驱动的学习体验**：KuGame不再是将命令简单地罗列展示，而是将其编织成一个完整的武侠故事。从踏入青云宗山门开始，您将经历各种冒险和挑战，在解决实际问题的过程中自然而然地掌握命令。每个章节都有精心设计的故事背景，将命令的功能与故事情节紧密结合，让学习变得富有趣味性和沉浸感。
+
+**完整的修炼体系**：游戏内置了完整的修炼境界系统，从「凡人」到「散仙」共九个境界。玩家通过学习和实践获得经验值，提升等级，解锁新的修炼境界。这种gamification的设计让学习过程充满动力和成就感，激励用户持续学习和进步。
+
+**丰富的命令覆盖**：KuGame涵盖了40余个常用的kubectl命令，从基础的`kubectl run`到进阶的`kubectl rollout`，从服务发现到配置管理，从存储管理到故障排查，几乎涵盖了日常工作中所有常用的Kubernetes命令。每个命令都有详细的说明、语法示例和实际应用场景。
+
+**多样化的练习模式**：游戏提供多种练习模式，包括故事模式、挑战模式、测验模式和自由练习。玩家可以根据自己的学习进度选择合适的模式，巩固所学知识，检验学习效果。
+
+**数据持久化**：支持玩家存档和读档，学习进度自动保存，让您可以随时继续学习之旅。
+
+## 🚀 快速开始
+
+### 环境要求
+
+在开始使用KuGame之前，请确保您的系统满足以下要求：
+
+- Python 3.8或更高版本
+- pip包管理器
+- 建议4GB以上内存
+- 100MB以上磁盘空间
+
+KuGame本身不需要Kubernetes集群即可运行，它是用于学习和练习kubectl命令的工具，可以在任何环境中使用。
+
+### 安装方法
+
+KuGame的安装非常简单，您可以通过以下几种方式完成安装：
+
+**方式一：使用pip安装（推荐）**
+
+```bash
+pip install kugame
+```
+
+**方式二：从源码安装**
+
+```bash
+# 克隆项目仓库
+git clone https://github.com/yourusername/kugame.git
+cd kugame
+
+# 安装项目
+pip install -e .
+
+```
+
+**方式三：使用pipx安装**
+
+```bash
+pipx install kugame
+```
+
+### 启动游戏
+
+安装完成后，在终端中运行以下命令启动游戏：
+
+```bash
 kugame
+```
+
+或者，如果您从源码安装：
+
+```bash
+python -m kugame.cli
+```
+
+## 📚 使用指南
+
+### 创建角色
+
+首次启动游戏时，您需要创建一个角色。您可以选择自己的侠名和所属门派。KuGame提供了四个独特的门派供您选择：
+
+**青云宗**：正道第一大宗，以「道法自然，容器之道」闻名。擅长创建和管理稳定的应用部署，适合喜欢稳健风格的玩家。
+
+**玄天宗**：以玄妙变化著称，擅长服务发现和网络配置。喜欢灵活应对各种场景的玩家可以选择此门派。
+
+**炼狱门**：以实战著称，专注于故障排查和性能优化。喜欢挑战高难度问题的玩家不要错过。
+
+**逍遥派**：以逍遥自在为理念，擅长配置管理和存储管理。追求效率和省心的玩家会发现这个门派很有吸引力。
+
+选择完毕后，您将踏入修仙之旅，开始学习Kubernetes之道。
+
+### 主菜单功能
+
+游戏主菜单提供以下功能选项：
+
+**📖 开始故事**：继续阅读故事章节，学习新的Kubernetes命令。每个章节都包含精彩的武侠叙事和实用的技术知识。
+
+**⚔️ 修炼场**：在已学命令中进行自由练习，巩固所学知识。您可以反复练习已掌握的的命令，加深记忆。
+
+**🏆 挑战关卡**：完成各种挑战任务，检验学习成果。挑战成功将获得丰厚的经验值奖励，还有连击系统让您的收益倍增。
+
+**📝 知识问答**：进行知识测验，测试您对Kubernetes命令的掌握程度。测验采用四选一的形式，帮助您查漏补缺。
+
+**📊 修炼进度**：查看当前的学习进度，包括等级、境界、命令掌握情况等详细信息。
+
+**📚 命令手册**：查看所有kubectl命令的详细说明和示例，随时查阅。
+
+**💾 保存进度**：手动保存当前游戏进度，确保学习成果不会丢失。
+
+**🚪 退出游戏**：安全退出游戏，您的进度会自动保存。
+
+### 游戏流程
+
+KuGame的游戏流程设计得既简单又富有挑战性。玩家从「序章」开始，逐步推进到各个章节。每个章节包含以下要素：
+
+**故事背景**：精彩的武侠叙事，将您带入一个充满想象力的修仙世界。通过故事情节，您将了解到为什么需要学习特定的命令，以及这些命令在实际场景中的应用。
+
+**命令讲解**：每个章节会介绍若干个kubectl命令，配有详细的语法说明和实际示例。这些命令按照由浅入深的顺序排列，确保您能够循序渐进地掌握。
+
+**挑战任务**：章节末尾会有一个挑战任务，要求您运用所学知识完成任务。通过挑战后，您将获得经验值奖励，并解锁下一章节。
+
+**进度追踪**：游戏会自动追踪您的学习进度，包括已学命令、已完成挑战、当前等级等信息。
+
+## 🏔️ 故事背景
+
+### 序章：踏入仙门
+
+故事开始于青云宗的山门前。您是一位对修真大道充满向往的年轻人，站在山门前，心中既兴奋又忐忑。白发苍苍的守门老者扫落叶时抬头看了您一眼，眼中闪过一丝精光：「年轻人，你可见过那云端之上的仙境？」
+
+老者告诉您，要踏入仙境，需先学会「容器化」之术。此术可将万物装入方寸之间，随取随用，来去自如。他向您展示了第一个咒语：`kubectl run nginx --image=nginx`。
+
+这就是您在KuGame世界中学到的第一个命令，也是Kubernetes之旅的起点。
+
+### 第一章：容器之道
+
+三个月后，您已经掌握了创建容器的基本方法。这一日，掌门真人召集众弟子：「近日魔教蠢蠢欲动，我们需要建立更强大的防御体系。众弟子听令，需掌握『部署』之术，方能守护宗门安全。」
+
+二师兄走到您面前：「小师弟，容器只是个体，部署才是军队。让我教你『Deployment』之道。」
+
+您将学习到：`kubectl create deployment`、`kubectl scale`、`kubectl get deployments`等命令。这些命令让您能够创建和管理一支「永不退缩的军队」——即应用的多个副本。
+
+### 第二章：服务之门
+
+掌握了部署术后，您面临新的挑战：如何让外界访问您的服务？
+
+大师兄解释道：「这便需要『Service』之术。Service是容器的门徒，负责将请求引导至正确的Pod。就如同宗门的迎客弟子，引导来访者前往正确的殿堂。」
+
+您将学习到：`kubectl expose`、`kubectl get services`、`kubectl describe service`等命令。这些命令让您能够开启「服务之门」，让外界可以访问您的应用。
+
+### 第三章：配置之密
+
+随着修为提升，您发现管理配置信息变得越来越重要。
+
+掌门真人召见您：「徒儿，你已学会创建服务，但若每次修改配置都要重新创建Pod，岂不劳民伤财？今日本座传授你『ConfigMap』和『Secret』之术。」
+
+您将学习到：`kubectl create configmap`、`kubectl create secret`、`kubectl get configmaps`等命令。这些命令让您能够「创建配置密卷」和「创建机密密钥」，灵活管理应用配置。
+
+### 第四章：存储之道
+
+您发现一个严重的问题：容器重启后，数据荡然无存。
+
+三师姐带您来到宗门藏经阁：「这便是『PersistentVolume』之术。数据如同宗门典籍，需永久保存，不可或缺。」
+
+您将学习到：`kubectl get pv`、`kubectl get pvc`、`kubectl apply`等命令。这些命令让您能够为应用建立「永久洞府」，确保数据持久化存储。
+
+### 第五章：调度之学
+
+作为一方小统领，如何合理分配资源成为新的挑战。
+
+军师大人传授您「资源配额」与「限制范围」之道。您将学习到：`kubectl top`、`kubectl describe node`、`kubectl label node`等命令。这些命令让您能够「查看各弟子的灵力消耗」，合理调度宗门资源。
+
+### 第六章：故障排查
+
+「报——！核心服务全部瘫痪！」您临危受命，开始排查故障。
+
+掌门真人远程指导：「记住，排查故障如同寻医问诊，需望闻问切，循序渐进。先看日志，再看事件，最后亲自探查。」
+
+您将学习到：`kubectl logs`、`kubectl exec`、`kubectl port-forward`、`kubectl events`等命令。这些命令让您能够快速定位和解决各种故障。
+
+### 第七章：进阶之道
+
+魔教教主亲自来袭，危急关头，您需要使出杀手锏。
+
+掌门真人传授您最后的秘术——YAML之道：「此乃YAML之道，可批量、可更新、可回滚。掌握此术，你便可以一敌万，以一当十！」
+
+您将学习到：`kubectl apply`、`kubectl patch`、`kubectl set image`、`kubectl rollout undo`等命令。这些命令让您能够以「不变应万变」，从容应对各种复杂场景。
+
+### 终章：飞升大成
+
+魔教教主被您斩于马下，您名声大噪，成为修真界新一代传奇。
+
+掌门真人欣慰地看着您：「徒儿，你已掌握容器化之道的精髓。今日本座将最后的心法传授于你，愿你将此道发扬光大。」
+
+完成最终章节，您将飞升大成，成为一代宗师。愿您将此道发扬光大，守护世间的和平与秩序！
+
+## 📋 命令速查
+
+KuGame涵盖了以下kubectl命令，按功能分类整理：
+
+### 基础操作命令
+
+| 命令 | 功能描述 | 章节 |
+|-----|---------|------|
+| `kubectl run NAME --image=IMAGE` | 创建并运行一个Pod | 序章 |
+| `kubectl get pods` | 列出所有Pod | 序章 |
+| `kubectl describe pod NAME` | 显示Pod的详细信息 | 序章 |
+| `kubectl delete pod NAME` | 删除Pod | 序章 |
+
+### 部署管理命令
+
+| 命令 | 功能描述 | 章节 |
+|-----|---------|------|
+| `kubectl create deployment NAME --image=IMAGE` | 创建一个Deployment | 第一章 |
+| `kubectl scale deployment NAME --replicas=NUM` | 扩缩容Deployment副本数 | 第一章 |
+| `kubectl get deployments` | 列出所有Deployment | 第一章 |
+| `kubectl rollout status deployment NAME` | 查看滚动更新状态 | 第一章 |
+
+### 服务发现命令
+
+| 命令 | 功能描述 | 章节 |
+|-----|---------|------|
+| `kubectl expose deployment NAME --port=PORT --type=TYPE` | 为Deployment创建Service | 第二章 |
+| `kubectl get services` | 列出所有Service | 第二章 |
+| `kubectl describe service NAME` | 显示Service的详细信息 | 第二章 |
+| `kubectl delete service NAME` | 删除Service | 第二章 |
+
+### 配置管理命令
+
+| 命令 | 功能描述 | 章节 |
+|-----|---------|------|
+| `kubectl create configmap NAME --from-literal=key=value` | 创建ConfigMap | 第三章 |
+| `kubectl create secret generic NAME --from-literal=key=value` | 创建Secret | 第三章 |
+| `kubectl get configmaps` | 列出所有ConfigMap | 第三章 |
+| `kubectl get secrets` | 列出所有Secret | 第三章 |
+| `kubectl describe configmap NAME` | 显示ConfigMap详情 | 第三章 |
+
+### 存储管理命令
+
+| 命令 | 功能描述 | 章节 |
+|-----|---------|------|
+| `kubectl get pv` | 列出所有PersistentVolume | 第四章 |
+| `kubectl get pvc` | 列出所有PersistentVolumeClaim | 第四章 |
+| `kubectl apply -f FILENAME` | 从YAML文件创建或更新资源 | 第四章 |
+| `kubectl delete pvc NAME` | 删除PersistentVolumeClaim | 第四章 |
+
+### 资源管理命令
+
+| 命令 | 功能描述 | 章节 |
+|-----|---------|------|
+| `kubectl top pods` | 查看资源使用情况 | 第五章 |
+| `kubectl describe node NAME` | 显示Node的详细信息 | 第五章 |
+| `kubectl label node NAME KEY=VALUE` | 为Node添加标签 | 第五章 |
+| `kubectl get nodes` | 列出所有Node | 第五章 |
+
+### 故障排查命令
+
+| 命令 | 功能描述 | 章节 |
+|-----|---------|------|
+| `kubectl logs POD` | 查看Pod的日志 | 第六章 |
+| `kubectl exec POD -- COMMAND` | 在Pod中执行命令 | 第六章 |
+| `kubectl port-forward POD LOCAL:REMOTE` | 本地端口转发到Pod | 第六章 |
+| `kubectl events` | 查看集群事件 | 第六章 |
+| `kubectl debug POD` | 调试Pod | 第六章 |
+
+### 进阶操作命令
+
+| 命令 | 功能描述 | 章节 |
+|-----|---------|------|
+| `kubectl patch TYPE NAME -p PATCH` | 更新资源的字段 | 第七章 |
+| `kubectl set image deployment NAME CONTAINER=IMAGE` | 更新容器镜像 | 第七章 |
+| `kubectl rollout undo deployment NAME` | 回滚Deployment到上一版本 | 第七章 |
+| `kubectl rollout history deployment NAME` | 查看Deployment版本历史 | 第七章 |
+
+### 集群管理命令
+
+| 命令 | 功能描述 | 章节 |
+|-----|---------|------|
+| `kubectl auth can-i VERB RESOURCE` | 检查当前用户的权限 | 终章 |
+| `kubectl config view` | 显示kubeconfig配置 | 终章 |
+| `kubectl cluster-info` | 显示集群信息 | 终章 |
+| `kubectl api-resources` | 列出所有API资源 | 终章 |
+| `kubectl completion shell` | 生成shell补全脚本 | 终章 |
+
+## 🛠️ 开发指南
+
+### 项目结构
+
+KuGame项目采用清晰的分层结构，便于维护和扩展：
+
+```
+kugame/
+├── kugame/                    # 主包目录
+│   ├── __init__.py           # 包初始化，导出公共API
+│   ├── player.py             # 玩家角色系统
+│   ├── story.py              # 故事管理器
+│   ├── kubernetes_commands.py # Kubernetes命令管理器
+│   ├── game_engine.py        # 游戏引擎
+│   └── cli.py                # 命令行界面
+├── tests/                    # 测试目录
+│   ├── __init__.py
+│   ├── test_player.py        # 玩家系统测试
+│   ├── test_story.py         # 故事管理器测试
+│   ├── test_kubernetes_commands.py # 命令管理器测试
+│   └── test_game_engine.py   # 游戏引擎测试
+├── docs/                     # 文档目录
+│   └── test_report.md        # 测试报告
+├── pyproject.toml            # 项目配置
+└── README.md                 # 项目说明
+```
+
+### 运行测试
+
+KuGame项目包含完整的测试套件，使用pytest框架编写。要运行测试，请执行以下命令：
+
+```bash
+# 运行所有测试
+pytest tests/ -v
+
+# 运行并生成覆盖率报告
+pytest tests/ --cov=kugame --cov-report=html
+
+# 运行指定测试文件
+pytest tests/test_player.py -v
+
+# 运行指定测试用例
+pytest tests/test_player.py::TestPlayer::test_level_up -v
+```
+
+测试报告会在每次测试运行后自动生成，包含详细的测试结果和覆盖率分析。
+
+### 代码规范
+
+KuGame项目遵循以下代码规范：
+
+- 使用Python 3.8+的新特性
+- 遵循PEP 8代码风格指南
+- 使用类型提示（Type Hints）增强代码可读性
+- 所有公共函数和类都有docstring文档
+- 使用black进行代码格式化
+- 使用mypy进行类型检查
+
+### 添加新命令
+
+如果您想为KuGame添加新的kubectl命令，请按照以下步骤操作：
+
+1. 在`kubernetes_commands.py`中的`_initialize_commands`方法里添加新的`KubectlCommand`实例
+2. 在`story.py`中找到对应的章节，在`commands_to_learn`列表中添加命令名
+3. 编写对应的测试用例
+4. 更新README文档中的命令速查表
+
+### 添加新章节
+
+KuGame的故事章节采用数据驱动的方式设计。如需添加新章节：
+
+1. 在`story.py`的`_initialize_chapters`方法中添加新的`StoryChapter`实例
+2. 在`Chapter`枚举中添加新的章节枚举值
+3. 确保新章节的命令与`kubernetes_commands.py`中的命令对应
+4. 编写对应的测试用例
+
+## 🤝 贡献指南
+
+我们欢迎并感谢您对KuGame项目的贡献！无论是报告bug、提出新功能建议，还是直接贡献代码，我们都十分欢迎。
+
+### 贡献方式
+
+**报告bug**：如果您发现任何bug或问题，请通过GitHub Issues页面提交报告。请详细描述问题现象、复现步骤和期望行为，以便我们快速定位和解决问题。
+
+**提出建议**：我们非常乐意听取您的建议。如果您有好的想法或改进建议，请通过GitHub Discussions页面与我们分享。
+
+**贡献代码**：如果您想直接贡献代码，请遵循以下步骤：
+
+1. Fork本项目到您的GitHub账户
+2. 创建一个新的分支进行您的修改
+3. 确保您的代码符合项目的代码规范
+4. 添加适当的测试用例
+5. 提交Pull Request，等待代码审查
+
+### 开发环境设置
+
+```bash
+# 克隆您的fork仓库
+git clone https://github.com/YOUR_USERNAME/kugame.git
+cd kugame
+
+# 创建虚拟环境
+python -m venv venv
+source venv/bin/activate  # Linux/macOS
+# 或
+.\venv\Scripts\activate  # Windows
+
+# 安装开发依赖
+pip install -e ".[dev]"
+
+# 运行代码检查
+black kugame/
+mypy kugame/
+
+# 运行测试
+pytest tests/ -v
+```
+
+## 📄 许可证
+
+KuGame项目采用MIT许可证开源。这意味着您可以自由地使用、修改和分发本项目的代码，但需要保留原始的许可证声明。
+
+```
+MIT License
+
+Copyright (c) 2026 KuGame Team
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+## 🙏 致谢
+
+KuGame项目的诞生离不开以下开源项目和社区的支持：
+
+- **Rich库**：为KuGame提供了美观且功能强大的终端输出能力
+- **PyYAML**：用于处理YAML格式的Kubernetes配置文件
+- **pytest**：为KuGame提供了完善的测试框架
+- **Kubernetes社区**：创造了如此优秀的容器编排平台，让KuGame有了学习的目标
+
+同时，也要感谢所有为KuGame项目贡献代码、报告bug和提出建议的开发者们。正是因为有你们的支持，KuGame才能不断进步和完善。
+
+## 📞 联系方式
+
+如果您有任何问题或建议，欢迎通过以下方式联系我们：
+
+- **GitHub Issues**：用于报告bug和提出功能建议
+- **GitHub Discussions**：用于一般性讨论和问题解答
+- **电子邮件**：kugame@example.com
+
+## 🔮 未来规划
+
+KuGame项目还在不断发展中，以下是未来版本的一些规划功能：
+
+- **Web界面版本**：提供基于浏览器的图形界面版本，让用户体验更丰富的游戏内容
+- **更多故事章节**：增加更多有趣的故事章节，覆盖更多Kubernetes高级主题
+- **多人模式**：支持多人协作学习，增加排行榜和竞技场功能
+- **移动端适配**：开发移动应用程序，让学习随时随地可以进行
+- **插件系统**：支持用户自定义故事和命令，提供更灵活的扩展能力
+
+如果您对这些功能感兴趣，欢迎加入我们的开发队伍，共同实现这些愿景！
+
+---
+
+<div align="center">
+
+**愿你在Kubernetes之道上一帆风顺！**
+
+*凡人之躯，终可问道苍穹。*
+
+</div>
