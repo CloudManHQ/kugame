@@ -1,8 +1,8 @@
 {
   "name": "测试侠客",
   "sect": "青云宗",
-  "level": 7,
-  "experience": 1003,
+  "level": 1,
+  "experience": 0,
   "cultivation": "凡人",
   "skills": [],
   "achievements": [],
@@ -152,20 +152,12 @@
       "unlocked": false
     }
   ],
-  "current_chapter": "chapter_3",
-  "kubectl_commands_mastered": [
-    "kubectl describe pod",
-    "kubectl get deployments",
-    "kubectl delete service"
-  ],
-  "challenges_completed": [
-    "prologue_challenge_5280",
-    "chapter_1_challenge_6925",
-    "chapter_2_challenge_9357"
-  ],
-  "streak": 2,
-  "total_correct": 3,
-  "total_attempts": 4,
+  "current_chapter": "序章",
+  "kubectl_commands_mastered": [],
+  "challenges_completed": [],
+  "streak": 0,
+  "total_correct": 0,
+  "total_attempts": 0,
   "custom_titles": [],
   "sect_bonus": 1.1
 }

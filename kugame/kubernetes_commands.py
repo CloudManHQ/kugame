@@ -50,7 +50,7 @@ class KubectlCommand:
     syntax: str
     example: str
     kubernetes_concept: str
-    related_commands: List[str] = None
+    related_commands: Optional[List[str]] = None
     difficulty: int = 1
     
     def __post_init__(self) -> None:
@@ -1077,7 +1077,7 @@ class KubernetesCommandManager:
             "difficulty": cmd_info.difficulty
         }
     
-    def get_random_challenge(self, mastered_commands: List[str], difficulty: int = None) -> Optional[Dict[str, Any]]:
+    def get_random_challenge(self, mastered_commands: List[str], difficulty: Optional[int] = None) -> Optional[Dict[str, Any]]:
         """生成随机挑战
         
         生成一个随机的挑战题，可指定难度。

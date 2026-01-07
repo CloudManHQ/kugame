@@ -49,6 +49,32 @@ class Character:
 
 
 @dataclass
+class Monster:
+    """怪物数据类
+    
+    存储游戏中的怪物信息。
+    
+    Attributes:
+        name: 怪物名称
+        health: 生命值
+        attack: 攻击力
+        defense: 防御力
+        experience_reward: 击败获得的经验值
+        command_challenge: 关联的命令挑战
+        description: 怪物描述
+        level: 怪物等级
+    """
+    name: str
+    health: int
+    attack: int
+    defense: int
+    experience_reward: int
+    command_challenge: Any
+    description: str = ""
+    level: int = 1
+
+
+@dataclass
 class StoryEvent:
     """故事事件数据类
     
@@ -62,6 +88,8 @@ class StoryEvent:
         consequences: 选择后果
         required_level: 触发所需等级
         rewards: 奖励信息
+        event_type: 事件类型（normal, combat等）
+        monster: 关联的怪物（如果是战斗事件）
     """
     event_id: str
     title: str
@@ -70,6 +98,8 @@ class StoryEvent:
     consequences: List[str]
     required_level: int = 1
     rewards: Dict[str, Any] = field(default_factory=dict)
+    event_type: str = "normal"
+    monster: Optional[Monster] = None
 
 
 @dataclass
@@ -120,8 +150,12 @@ class StoryManager:
         characters: 所有出场人物
         random_events: 随机事件列表
     """
+    chapters: Dict[Chapter, StoryChapter]
+    current_chapter: Chapter
+    characters: Dict[str, Character]
+    random_events: List[StoryEvent]
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.characters = self._initialize_characters()
         self.random_events = self._initialize_random_events()
         self.chapters = self._initialize_chapters()
@@ -196,6 +230,7 @@ class StoryManager:
             List[StoryEvent]: 随机事件列表
         """
         return [
+            # 普通事件
             StoryEvent(
                 event_id="treasure_found",
                 title="发现宝藏",
@@ -245,6 +280,76 @@ class StoryManager:
                     "2": {"experience": 30}
                 }
             ),
+            
+            # 战斗事件
+            StoryEvent(
+                event_id="monster_attack_pod",
+                title="Pod魔袭击",
+                description="一只Pod魔突然从虚空中出现，它不断吞噬周围的资源，你必须阻止它！",
+                choices=["战斗", "逃跑"],
+                consequences=[
+                    "你与Pod魔展开了激烈的战斗！",
+                    "你选择了逃跑，Pod魔在身后穷追不舍！"
+                ],
+                required_level=2,
+                event_type="combat",
+                monster=Monster(
+                    name="Pod魔",
+                    health=50,
+                    attack=8,
+                    defense=2,
+                    experience_reward=100,
+                    command_challenge="kubectl get pods",
+                    description="由失控的Pod转化而成的怪物，喜欢吞噬资源",
+                    level=2
+                )
+            ),
+            StoryEvent(
+                event_id="monster_deployment",
+                title="Deployment巨兽",
+                description="一只巨大的Deployment巨兽正在破坏宗门的部署，它能够不断分裂出Pod魔！",
+                choices=["战斗", "寻找支援"],
+                consequences=[
+                    "你勇敢地与Deployment巨兽展开了战斗！",
+                    "你去寻找同门支援，回来时Deployment巨兽已经破坏了更多部署！"
+                ],
+                required_level=5,
+                event_type="combat",
+                monster=Monster(
+                    name="Deployment巨兽",
+                    health=120,
+                    attack=15,
+                    defense=5,
+                    experience_reward=250,
+                    command_challenge="kubectl scale deployment",
+                    description="由失控的Deployment转化而成的巨兽，能够不断分裂",
+                    level=5
+                )
+            ),
+            StoryEvent(
+                event_id="monster_service",
+                title="Service幽灵",
+                description="一只Service幽灵正在干扰宗门的网络，导致服务无法正常通信！",
+                choices=["战斗", "修复网络"],
+                consequences=[
+                    "你与Service幽灵展开了激烈的战斗！",
+                    "你尝试修复网络，但Service幽灵不断干扰你的工作！"
+                ],
+                required_level=8,
+                event_type="combat",
+                monster=Monster(
+                    name="Service幽灵",
+                    health=80,
+                    attack=12,
+                    defense=3,
+                    experience_reward=200,
+                    command_challenge="kubectl get services",
+                    description="由故障的Service转化而成的幽灵，干扰网络通信",
+                    level=8
+                )
+            ),
+            
+            # 其他事件
             StoryEvent(
                 event_id="sword_dojo",
                 title="剑冢试炼",
@@ -277,55 +382,6 @@ class StoryManager:
                     "0": {"experience": 100},
                     "1": {"experience": 80},
                     "2": {"experience": 50}
-                }
-            ),
-            StoryEvent(
-                event_id="ancient_ruins",
-                title="古墟探险",
-                description="你发现了一座古老的废墟，里面似乎蕴含着强大的Kubernetes奥秘！",
-                choices=["深入探索", "谨慎前进", "返回宗门"],
-                consequences=[
-                    "你深入废墟，找到了一个古老的控制面板！获得了180经验值和稀有技能！",
-                    "你谨慎前进，只探索了外围，获得了80经验值！",
-                    "你觉得危险，返回了宗门。"
-                ],
-                required_level=12,
-                rewards={
-                    "0": {"experience": 180, "skill": "废墟探索"},
-                    "1": {"experience": 80}
-                }
-            ),
-            StoryEvent(
-                event_id="resource_shortage",
-                title="资源短缺",
-                description="宗门的资源出现短缺，掌门真人要求你合理分配资源。",
-                choices=["优先发展核心服务", "平均分配资源", "重点培养新人"],
-                consequences=[
-                    "你优先发展核心服务，宗门实力得到提升！获得了100经验值！",
-                    "你平均分配资源，虽然没有突出表现，但也没有失误！获得了50经验值！",
-                    "你重点培养新人，为宗门培养了一批生力军！获得了70经验值！"
-                ],
-                required_level=15,
-                rewards={
-                    "0": {"experience": 100},
-                    "1": {"experience": 50},
-                    "2": {"experience": 70}
-                }
-            ),
-            StoryEvent(
-                event_id="secret_technique",
-                title="秘法传承",
-                description="三师姐林雨萱想要传授你一门Kubernetes的秘法，但需要你完成一个任务。",
-                choices=["接受任务", "拒绝学习", "请求降低难度"],
-                consequences=[
-                    "你完成了任务，学会了秘法！获得了200经验值和秘法传承！",
-                    "你拒绝了学习，错过了一次难得的机会。",
-                    "师姐降低了任务难度，你完成后获得了120经验值！"
-                ],
-                required_level=18,
-                rewards={
-                    "0": {"experience": 200, "title": "秘法传承者"},
-                    "2": {"experience": 120}
                 }
             )
         ]

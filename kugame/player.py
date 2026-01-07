@@ -100,6 +100,15 @@ class Player:
         total_attempts: 总尝试次数
         custom_titles: 自定义称号列表
         sect_bonus: 门派加成
+        
+        # 战斗属性
+        health: 当前生命值
+        max_health: 最大生命值
+        attack: 攻击力
+        defense: 防御力
+        
+        # 答题系统
+        wrong_commands: 答错的命令列表
     """
     name: str
     sect: Sect
@@ -124,6 +133,15 @@ class Player:
     custom_titles: List[str] = field(default_factory=list)
     sect_bonus: float = 1.0
     
+    # 战斗属性
+    health: int = 100
+    max_health: int = 100
+    attack: int = 10
+    defense: int = 5
+    
+    # 答题系统
+    wrong_commands: List[str] = field(default_factory=list)
+    
     def __post_init__(self) -> None:
         """初始化后处理
         
@@ -138,6 +156,16 @@ class Player:
         
         if not isinstance(self.experience, int) or self.experience < 0:
             self.experience = 0
+        
+        # 战斗属性初始化
+        if not isinstance(self.health, int) or self.health < 0:
+            self.health = 100
+        if not isinstance(self.max_health, int) or self.max_health < 0:
+            self.max_health = 100
+        if not isinstance(self.attack, int) or self.attack < 0:
+            self.attack = 10
+        if not isinstance(self.defense, int) or self.defense < 0:
+            self.defense = 5
         
         # 确保列表属性初始化正确
         if not isinstance(self.skills, list):
@@ -158,6 +186,9 @@ class Player:
         if not isinstance(self.custom_titles, list):
             self.custom_titles = []
         
+        if not isinstance(self.wrong_commands, list):
+            self.wrong_commands = []
+        
         if not isinstance(self.streak, int) or self.streak < 0:
             self.streak = 0
         
@@ -172,6 +203,10 @@ class Player:
         
         # 设置门派加成
         self._set_sect_bonus()
+        
+        # 确保生命值不超过最大值
+        if self.health > self.max_health:
+            self.health = self.max_health
     
     def _initialize_achievements(self) -> None:
         """初始化成就系统
@@ -601,6 +636,54 @@ class Player:
             return True
         except Exception as e:
             print(f"保存玩家数据失败: {str(e)}")
+            return False
+    
+    @classmethod
+    def get_save_files(cls, directory: str = ".") -> List[str]:
+        """获取所有存档文件列表
+        
+        Args:
+            directory: 查找存档的目录，默认在当前目录
+            
+        Returns:
+            List[str]: 存档文件列表
+        """
+        save_files = []
+        try:
+            # 遍历目录，查找以.json结尾的文件
+            for file in os.listdir(directory):
+                if file.endswith(".json"):
+                    # 尝试加载文件，验证是否为有效的存档文件
+                    filepath = os.path.join(directory, file)
+                    try:
+                        with open(filepath, 'r', encoding='utf-8') as f:
+                            data = json.load(f)
+                            # 验证必要字段
+                            if all(field in data for field in ["name", "sect", "level", "experience"]):
+                                save_files.append(file)
+                    except (json.JSONDecodeError, ValueError, KeyError):
+                        continue
+        except Exception as e:
+            print(f"获取存档文件列表失败: {str(e)}")
+        return save_files
+    
+    @classmethod
+    def delete_save(cls, filepath: str) -> bool:
+        """删除指定存档
+        
+        Args:
+            filepath: 要删除的存档文件路径
+            
+        Returns:
+            bool: 删除成功返回True，失败返回False
+        """
+        try:
+            if os.path.exists(filepath):
+                os.remove(filepath)
+                return True
+            return False
+        except Exception as e:
+            print(f"删除存档失败: {str(e)}")
             return False
     
     @classmethod

@@ -10,6 +10,8 @@ from .player import Player, Sect
 from .story import StoryManager, Chapter
 from .kubernetes_commands import KubernetesCommandManager, CommandCategory
 import random
+import os
+import json
 
 
 class GameState(Enum):
@@ -38,6 +40,8 @@ class Challenge:
         description: 挑战描述
         question: 挑战问题
         expected_command: 预期的命令答案
+        options: 挑战选项列表
+        correct_option_index: 正确选项索引
         hint: 提示信息
         reward_exp: 完成挑战获得的经验值
         difficulty: 挑战难度（1-10）
@@ -47,6 +51,8 @@ class Challenge:
     description: str
     question: str
     expected_command: str
+    options: List[str]
+    correct_option_index: int
     hint: str
     reward_exp: int
     difficulty: int
@@ -66,8 +72,17 @@ class GameEngine:
         score: 玩家总得分
         streak: 连续正确回答的次数
     """
+    state: GameState
+    player: Optional[Player]
+    current_challenge: Optional[Challenge]
+    score: float
+    streak: int
+    story_manager: StoryManager
+    command_manager: KubernetesCommandManager
+    current_monster: Optional[Any]
+    monster_current_health: int
     
-    def __init__(self):
+    def __init__(self) -> None:
         """初始化游戏引擎"""
         self.story_manager = StoryManager()
         self.command_manager = KubernetesCommandManager()
@@ -76,6 +91,10 @@ class GameEngine:
         self.current_challenge: Optional[Challenge] = None
         self.score: float = 0.0
         self.streak: int = 0
+        
+        # 战斗系统属性
+        self.current_monster: Optional[Any] = None
+        self.monster_current_health: int = 0
     
     def initialize_player(self, name: str, sect: Sect) -> Player:
         """初始化玩家
@@ -135,6 +154,7 @@ class GameEngine:
             {"id": "progress", "name": "📊 修炼进度", "description": "查看学习进度"},
             {"id": "commands", "name": "📚 命令手册", "description": "查看所有命令"},
             {"id": "save", "name": "💾 保存进度", "description": "保存当前进度"},
+            {"id": "save_manager", "name": "📁 档案管理", "description": "管理游戏存档"},
             {"id": "quit", "name": "🚪 退出游戏", "description": "退出游戏"},
         ]
     
@@ -160,7 +180,7 @@ class GameEngine:
     def generate_challenge(self) -> Optional[Challenge]:
         """生成挑战
         
-        根据当前章节的命令生成一个挑战任务。
+        根据当前章节的命令生成一个挑战任务，包含多个选项。
         
         Returns:
             生成的挑战对象，如果没有可用命令则返回None
@@ -183,12 +203,31 @@ class GameEngine:
         chapter_num = int(chapter.chapter_id.value.split('_')[-1]) if 'chapter_' in chapter.chapter_id.value else 0
         difficulty = min(10, chapter_num + 1)  # 限制难度在1-10之间
         
+        # 生成选项：1个正确选项 + 3-4个干扰选项
+        all_commands = list(self.command_manager.commands.keys())
+        
+        # 移除正确选项，避免重复
+        all_commands = [cmd for cmd in all_commands if cmd != target_command]
+        
+        # 随机选择3个干扰选项
+        num_distractors = 3
+        distractors = random.sample(all_commands, num_distractors) if len(all_commands) >= num_distractors else all_commands
+        
+        # 构建选项列表并随机排序
+        options = [target_command] + distractors
+        random.shuffle(options)
+        
+        # 找到正确选项的索引
+        correct_index = options.index(target_command)
+        
         challenge = Challenge(
             challenge_id=challenge_id,
             title=f"修炼挑战 - {cmd_info.kubernetes_concept}",
             description=f"掌握{cmd_info.description}的技巧",
             question=f"如何{cmd_info.description}？",
             expected_command=target_command,
+            options=options,
+            correct_option_index=correct_index,
             hint=f"使用 {cmd_info.syntax} 格式",
             reward_exp=chapter.reward_exp,
             difficulty=difficulty,
@@ -197,13 +236,13 @@ class GameEngine:
         self.current_challenge = challenge
         return challenge
     
-    def check_answer(self, user_answer: str) -> Dict[str, Any]:
+    def check_answer(self, user_choice: int) -> Dict[str, Any]:
         """检查答案
         
-        验证用户输入的命令是否正确，并返回结果。
+        验证用户选择的选项索引是否正确，并返回结果。
         
         Args:
-            user_answer: 用户输入的命令
+            user_choice: 用户选择的选项索引（从1开始）
             
         Returns:
             包含验证结果的字典，包括是否正确、消息、连击数、得分和解锁成就等
@@ -211,14 +250,28 @@ class GameEngine:
         if not self.current_challenge:
             return {"correct": False, "message": "没有正在进行的挑战"}
         
-        if not isinstance(user_answer, str):
-            return {"correct": False, "message": "答案必须是字符串类型"}
+        if not isinstance(user_choice, int):
+            return {"correct": False, "message": "答案必须是整数类型"}
         
-        user_answer = user_answer.strip()
-        expected = self.current_challenge.expected_command
+        # 转换为0-based索引
+        user_index = user_choice - 1
         
-        is_correct = user_answer == expected
+        # 检查索引是否在有效范围内
+        if user_index < 0 or user_index >= len(self.current_challenge.options):
+            return {
+                "correct": False,
+                "message": f"✗ 无效选择，请选择1-{len(self.current_challenge.options)}之间的数字",
+                "streak": self.streak,
+                "score": int(self.score),
+                "unlocked_achievements": []
+            }
+        
+        # 检查答案是否正确
+        is_correct = user_index == self.current_challenge.correct_option_index
         unlocked_achievements = []
+        
+        expected = self.current_challenge.expected_command
+        selected_command = self.current_challenge.options[user_index]
         
         if is_correct:
             self.streak += 1
@@ -246,22 +299,26 @@ class GameEngine:
                 # 更新玩家的连续成功次数
                 self.player.update_streak(False)
                 self.player.streak = self.streak
+                # 记录错题
+                self.player.wrong_commands.append(selected_command) if hasattr(self.player, 'wrong_commands') else None
         
         result = {
             "correct": is_correct,
             "streak": self.streak,
             "score": int(self.score),
-            "unlocked_achievements": unlocked_achievements
+            "unlocked_achievements": unlocked_achievements,
+            "selected_option": user_index + 1,
+            "correct_option": self.current_challenge.correct_option_index + 1
         }
         
         if is_correct:
             result["message"] = f"✓ 回答正确！获得 {int(self.current_challenge.reward_exp)} 经验值"
             result["streak_bonus"] = streak_bonus
         else:
-            result["message"] = f"✗ 回答错误。正确答案是: {expected}"
+            result["message"] = f"✗ 回答错误。正确答案是选项 {self.current_challenge.correct_option_index + 1}: {expected}"
             result["hint"] = self.current_challenge.hint
             result["expected"] = expected
-            result["given"] = user_answer
+            result["given"] = selected_command
         
         return result
     
@@ -417,11 +474,14 @@ class GameEngine:
         commands_info.sort(key=lambda x: x["category"])
         return commands_info
     
-    def save_game(self) -> bool:
+    def save_game(self, save_name: Optional[str] = None) -> bool:
         """保存游戏
         
         保存当前玩家的游戏进度到本地文件。
         
+        Args:
+            save_name: 存档名称，不包含文件扩展名
+            
         Returns:
             如果保存成功则返回True，否则返回False
         """
@@ -429,11 +489,88 @@ class GameEngine:
             return False
         
         try:
-            self.player.save()
+            # 如果提供了存档名称，使用自定义名称，否则使用默认名称
+            if save_name:
+                # 确保文件扩展名是.json
+                if not save_name.endswith('.json'):
+                    save_name += '.json'
+                self.player.save(save_name)
+            else:
+                self.player.save()
             return True
         except Exception as e:
             # 记录保存失败日志（实际项目中可以使用日志系统）
             print(f"保存游戏失败: {str(e)}")
+            return False
+    
+    def get_save_list(self) -> List[Dict[str, Any]]:
+        """获取所有存档列表
+        
+        Returns:
+            List[Dict[str, Any]]: 存档信息列表，包含文件名和玩家基本信息
+        """
+        save_files = Player.get_save_files()
+        save_list = []
+        
+        for save_file in save_files:
+            # 尝试加载存档信息
+            try:
+                with open(save_file, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    # 提取基本信息
+                    save_info = {
+                        "filename": save_file,
+                        "player_name": data["name"],
+                        "level": data["level"],
+                        "sect": data["sect"],
+                        "cultivation": data.get("cultivation", "凡人"),
+                        "experience": data["experience"]
+                    }
+                    save_list.append(save_info)
+            except Exception as e:
+                print(f"读取存档信息失败: {str(e)}")
+        
+        return save_list
+    
+    def delete_save(self, save_name: str) -> bool:
+        """删除指定存档
+        
+        Args:
+            save_name: 存档文件名
+            
+        Returns:
+            bool: 删除成功返回True，否则返回False
+        """
+        return Player.delete_save(save_name)
+    
+    def rename_save(self, old_name: str, new_name: str) -> bool:
+        """重命名存档
+        
+        Args:
+            old_name: 原存档文件名
+            new_name: 新存档文件名
+            
+        Returns:
+            bool: 重命名成功返回True，否则返回False
+        """
+        try:
+            # 确保新文件名以.json结尾
+            if not new_name.endswith('.json'):
+                new_name += '.json'
+            
+            # 检查原文件是否存在
+            if not os.path.exists(old_name):
+                return False
+            
+            # 检查新文件名是否已存在
+            if os.path.exists(new_name):
+                return False
+            
+            # 执行重命名
+            os.rename(old_name, new_name)
+            return True
+        except Exception as e:
+            print(f"重命名存档失败: {str(e)}")
             return False
     
     def reset_streak(self) -> None:
@@ -442,6 +579,184 @@ class GameEngine:
         重置连续正确回答的次数。
         """
         self.streak = 0
+    
+    # 战斗系统相关方法
+    def start_combat(self, monster: Any) -> Dict[str, Any]:
+        """开始战斗
+        
+        Args:
+            monster: 要战斗的怪物对象
+            
+        Returns:
+            战斗初始状态字典
+        """
+        if not self.player:
+            raise ValueError("玩家未初始化，无法开始战斗")
+        
+        # 保存怪物原始状态，用于战斗中恢复
+        self.current_monster = monster
+        self.monster_current_health = monster.health
+        
+        return {
+            "player_health": self.player.health,
+            "monster_health": self.monster_current_health,
+            "monster_name": monster.name,
+            "monster_description": monster.description,
+            "player_attack": self.player.attack,
+            "player_defense": self.player.defense,
+            "monster_attack": monster.attack,
+            "monster_defense": monster.defense,
+            "round": 1,
+            "status": "combat_started"
+        }
+    
+    def player_attack(self, monster: Any, answer_correct: bool) -> Dict[str, Any]:
+        """玩家攻击
+        
+        Args:
+            monster: 要攻击的怪物对象
+            answer_correct: 命令回答是否正确
+            
+        Returns:
+            攻击结果字典
+        """
+        if not self.player:
+            raise ValueError("玩家未初始化，无法进行攻击")
+        
+        # 根据回答正确性调整攻击力
+        if answer_correct:
+            # 回答正确，攻击力翻倍
+            damage = max(1, self.player.attack * 2 - monster.defense)
+            self.streak += 1
+            attack_message = f"你回答正确！发动了强力攻击！"
+        else:
+            # 回答错误，攻击力减半
+            damage = max(1, self.player.attack // 2 - monster.defense)
+            self.streak = 0
+            attack_message = f"你回答错误！攻击威力大减！"
+        
+        # 对怪物造成伤害
+        self.monster_current_health = max(0, self.monster_current_health - damage)
+        
+        # 检查怪物是否被击败
+        if self.monster_current_health <= 0:
+            # 战斗胜利
+            return self._handle_combat_victory(monster, damage, attack_message)
+        
+        # 怪物反击
+        return self._monster_counter_attack(monster, damage, attack_message)
+    
+    def _monster_counter_attack(self, monster: Any, player_damage: int, attack_message: str) -> Dict[str, Any]:
+        """怪物反击
+        
+        Args:
+            monster: 怪物对象
+            player_damage: 玩家造成的伤害
+            attack_message: 玩家攻击的消息
+            
+        Returns:
+            反击结果字典
+        """
+        if not self.player:
+            raise ValueError("玩家未初始化，无法进行怪物反击")
+        
+        # 计算怪物造成的伤害
+        monster_damage = max(1, monster.attack - self.player.defense)
+        
+        # 对玩家造成伤害
+        self.player.health = max(0, self.player.health - monster_damage)
+        
+        # 检查玩家是否被击败
+        if self.player.health <= 0:
+            # 战斗失败
+            return {
+                "player_health": self.player.health,
+                "monster_health": self.monster_current_health,
+                "damage": player_damage,
+                "monster_damage": monster_damage,
+                "message": f"{attack_message}\n{monster.name}对你造成了{monster_damage}点伤害！\n你被击败了！",
+                "status": "combat_lost",
+                "streak": self.streak
+            }
+        
+        # 战斗继续
+        return {
+            "player_health": self.player.health,
+            "monster_health": self.monster_current_health,
+            "damage": player_damage,
+            "monster_damage": monster_damage,
+            "message": f"{attack_message}\n你对{monster.name}造成了{player_damage}点伤害！\n{monster.name}对你造成了{monster_damage}点伤害！",
+            "status": "combat_ongoing",
+            "streak": self.streak
+        }
+    
+    def _handle_combat_victory(self, monster: Any, damage: int, attack_message: str) -> Dict[str, Any]:
+        """处理战斗胜利
+        
+        Args:
+            monster: 被击败的怪物对象
+            damage: 最后一击的伤害
+            attack_message: 最后一击的消息
+            
+        Returns:
+            战斗胜利结果字典
+        """
+        if not self.player:
+            raise ValueError("玩家未初始化，无法处理战斗胜利")
+        
+        # 战斗胜利，获得经验值
+        exp_gained = monster.experience_reward
+        self.player.gain_experience(exp_gained)
+        
+        # 清除当前怪物
+        self.current_monster = None
+        
+        return {
+            "player_health": self.player.health,
+            "monster_health": 0,
+            "damage": damage,
+            "monster_damage": 0,
+            "message": f"{attack_message}\n你对{monster.name}造成了{damage}点伤害！\n{monster.name}被击败了！\n你获得了{exp_gained}经验值！",
+            "status": "combat_won",
+            "exp_gained": exp_gained,
+            "streak": self.streak
+        }
+    
+    def flee_combat(self, monster: Any) -> Dict[str, Any]:
+        """逃跑
+        
+        Args:
+            monster: 要逃跑的怪物对象
+            
+        Returns:
+            逃跑结果字典
+        """
+        # 逃跑成功率为50%
+        flee_success = random.choice([True, False])
+        
+        if flee_success:
+            # 逃跑成功
+            self.current_monster = None
+            return {
+                "message": f"你成功逃离了{monster.name}的追击！",
+                "status": "flee_success"
+            }
+        else:
+            # 逃跑失败，怪物反击
+            if not self.player:
+                raise ValueError("玩家未初始化，无法处理逃跑失败")
+            
+            # 怪物造成的伤害翻倍
+            monster_damage = max(1, monster.attack * 2 - self.player.defense)
+            self.player.health = max(0, self.player.health - monster_damage)
+            
+            return {
+                "player_health": self.player.health,
+                "monster_health": self.monster_current_health,
+                "message": f"你逃跑失败！{monster.name}对你造成了{monster_damage}点伤害！",
+                "status": "flee_failed",
+                "monster_damage": monster_damage
+            }
     
     def get_player(self) -> Optional[Player]:
         """获取当前玩家
@@ -469,3 +784,91 @@ class GameEngine:
             当前游戏状态
         """
         return self.state
+    
+    # 纯粹答题模式相关方法
+    def start_quiz_mode(self, use_wrong_commands_only: bool = False) -> Dict[str, Any]:
+        """开始纯粹答题模式
+        
+        Args:
+            use_wrong_commands_only: 是否只使用错题集
+            
+        Returns:
+            答题模式初始状态
+        """
+        if not self.player:
+            raise ValueError("玩家未初始化，无法开始答题模式")
+        
+        # 根据参数选择使用的命令列表
+        if use_wrong_commands_only and self.player.wrong_commands:
+            # 只使用错题集
+            available_commands = list(set(self.player.wrong_commands))
+            mode_name = "错题集模式"
+        else:
+            # 使用所有命令
+            available_commands = list(self.command_manager.commands.keys())
+            mode_name = "全部命令模式"
+        
+        return {
+            "mode": mode_name,
+            "total_commands": len(available_commands),
+            "status": "quiz_started"
+        }
+    
+    def generate_quiz_question(self, use_wrong_commands_only: bool = False) -> Optional[Dict[str, Any]]:
+        """生成答题模式的问题
+        
+        Args:
+            use_wrong_commands_only: 是否只使用错题集
+            
+        Returns:
+            包含问题、选项、正确答案的字典，或None（如果没有可用命令）
+        """
+        if not self.player:
+            raise ValueError("玩家未初始化，无法生成答题模式问题")
+        
+        # 根据参数选择使用的命令列表
+        if use_wrong_commands_only and self.player.wrong_commands:
+            # 只使用错题集
+            available_commands = list(set(self.player.wrong_commands))
+        else:
+            # 使用所有命令
+            available_commands = list(self.command_manager.commands.keys())
+        
+        if not available_commands:
+            return None
+        
+        # 随机选择一个命令
+        target_command = random.choice(available_commands)
+        cmd_info = self.command_manager.get_command(target_command)
+        
+        if not cmd_info:
+            return None
+        
+        # 生成选项
+        all_commands = list(self.command_manager.commands.keys())
+        all_commands = [cmd for cmd in all_commands if cmd != target_command]
+        
+        # 随机选择3个干扰选项
+        num_distractors = 3
+        distractors = random.sample(all_commands, num_distractors) if len(all_commands) >= num_distractors else all_commands
+        
+        # 构建选项列表并随机排序
+        options = [target_command] + distractors
+        random.shuffle(options)
+        
+        # 找到正确选项的索引
+        correct_index = options.index(target_command)
+        
+        return {
+            "question": f"如何{cmd_info.description}？",
+            "options": options,
+            "correct_index": correct_index,
+            "command_info": {
+                "name": cmd_info.name,
+                "category": cmd_info.category.value,
+                "description": cmd_info.description,
+                "syntax": cmd_info.syntax,
+                "example": cmd_info.example,
+                "concept": cmd_info.kubernetes_concept
+            }
+        }

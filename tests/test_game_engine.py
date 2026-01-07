@@ -61,12 +61,13 @@ class TestGameEngine:
         """测试获取菜单选项"""
         options = self.engine.get_menu_options()
         
-        assert len(options) == 8
+        assert len(options) == 9
         option_ids = [opt["id"] for opt in options]
         assert "story" in option_ids
         assert "practice" in option_ids
         assert "challenge" in option_ids
         assert "progress" in option_ids
+        assert "save_manager" in option_ids
     
     def test_get_story_content(self):
         """测试获取故事内容"""
@@ -98,7 +99,9 @@ class TestGameEngine:
         self.engine.generate_challenge()
         
         if self.engine.current_challenge:
-            result = self.engine.check_answer(self.engine.current_challenge.expected_command)
+            # 找到正确选项的索引（从1开始）
+            correct_index = self.engine.current_challenge.correct_option_index + 1
+            result = self.engine.check_answer(correct_index)
             
             assert result["correct"] is True
             assert "经验值" in result["message"]
@@ -109,7 +112,11 @@ class TestGameEngine:
         self.engine.generate_challenge()
         
         if self.engine.current_challenge:
-            result = self.engine.check_answer("kubectl wrong command")
+            # 选择一个错误的选项索引（从1开始）
+            # 确保选择的不是正确选项
+            correct_index = self.engine.current_challenge.correct_option_index + 1
+            wrong_index = correct_index + 1 if correct_index < 4 else 1
+            result = self.engine.check_answer(wrong_index)
             
             assert result["correct"] is False
     
