@@ -11,7 +11,7 @@ import random
 
 class CommandCategory(Enum):
     """命令分类枚举
-    
+
     将Kubernetes命令按照功能进行分类，便于学习和管理。
     """
     基础操作 = "basic"        # 基础命令，如创建、查看、删除Pod
@@ -31,9 +31,9 @@ class CommandCategory(Enum):
 @dataclass
 class KubectlCommand:
     """kubectl命令数据类
-    
+
     存储Kubernetes命令的详细信息，包括名称、分类、描述、语法、示例等。
-    
+
     Attributes:
         name: 命令全名，如"kubectl get pods"
         category: 命令分类
@@ -52,39 +52,39 @@ class KubectlCommand:
     kubernetes_concept: str
     related_commands: Optional[List[str]] = None
     difficulty: int = 1
-    
+
     def __post_init__(self) -> None:
         """初始化后处理
-        
+
         确保相关命令列表和难度值有效。
         """
         if self.related_commands is None:
             self.related_commands = []
-        
+
         # 确保难度值在1-5之间
         self.difficulty = max(1, min(5, self.difficulty))
 
 
 class KubernetesCommandManager:
     """Kubernetes命令管理器
-    
+
     管理所有Kubernetes命令的信息，提供命令查询、验证、练习和进度跟踪功能。
-    
+
     Attributes:
         commands: 命令字典，键为命令全名，值为KubectlCommand对象
         command_progress: 命令学习进度，键为命令全名，值为掌握程度（0.0-1.0）
     """
-    
+
     def __init__(self) -> None:
         """初始化命令管理器"""
         self.commands: Dict[str, KubectlCommand] = self._initialize_commands()
         self.command_progress: Dict[str, float] = {}
-    
+
     def _initialize_commands(self) -> Dict[str, KubectlCommand]:
         """初始化所有命令
-        
+
         创建并返回包含所有Kubernetes命令的字典。
-        
+
         Returns:
             Dict[str, KubectlCommand]: 命令字典
         """
@@ -150,7 +150,7 @@ class KubernetesCommandManager:
                 related_commands=["kubectl delete pod", "kubectl delete service"],
                 difficulty=2
             ),
-            
+
             # 部署管理（难度2）
             "kubectl create deployment": KubectlCommand(
                 name="kubectl create deployment",
@@ -212,7 +212,7 @@ class KubernetesCommandManager:
                 related_commands=["kubectl get deployments"],
                 difficulty=2
             ),
-            
+
             # 服务发现（难度2）
             "kubectl expose": KubectlCommand(
                 name="kubectl expose",
@@ -264,7 +264,7 @@ class KubernetesCommandManager:
                 related_commands=["kubectl get services"],
                 difficulty=3
             ),
-            
+
             # 配置管理（难度3）
             "kubectl create configmap": KubectlCommand(
                 name="kubectl create configmap",
@@ -336,7 +336,7 @@ class KubernetesCommandManager:
                 related_commands=["kubectl get secrets"],
                 difficulty=2
             ),
-            
+
             # 存储管理（难度3）
             "kubectl get pv": KubectlCommand(
                 name="kubectl get pv",
@@ -398,7 +398,7 @@ class KubernetesCommandManager:
                 related_commands=["kubectl get pv"],
                 difficulty=4
             ),
-            
+
             # 资源管理（难度3）
             "kubectl top": KubectlCommand(
                 name="kubectl top",
@@ -530,7 +530,7 @@ class KubernetesCommandManager:
                 related_commands=["kubectl label"],
                 difficulty=4
             ),
-            
+
             # 故障排查（难度4）
             "kubectl logs": KubectlCommand(
                 name="kubectl logs",
@@ -592,7 +592,7 @@ class KubernetesCommandManager:
                 related_commands=["kubectl describe"],
                 difficulty=3
             ),
-            
+
             # 进阶操作（难度4）
             "kubectl patch": KubectlCommand(
                 name="kubectl patch",
@@ -654,7 +654,7 @@ class KubernetesCommandManager:
                 related_commands=["kubectl apply"],
                 difficulty=4
             ),
-            
+
             # 集群管理（难度5）
             "kubectl auth can-i": KubectlCommand(
                 name="kubectl auth can-i",
@@ -726,7 +726,7 @@ class KubernetesCommandManager:
                 related_commands=["kubectl"],
                 difficulty=3
             ),
-            
+
             # 网络管理（难度5）
             "kubectl get networkpolicies": KubectlCommand(
                 name="kubectl get networkpolicies",
@@ -798,7 +798,7 @@ class KubernetesCommandManager:
                 related_commands=["kubectl get ingress"],
                 difficulty=4
             ),
-            
+
             # 安全管理（难度5）
             "kubectl get roles": KubectlCommand(
                 name="kubectl get roles",
@@ -880,16 +880,6 @@ class KubernetesCommandManager:
                 related_commands=["kubectl get secrets"],
                 difficulty=4
             ),
-            "kubectl get secrets": KubectlCommand(
-                name="kubectl get secrets",
-                category=CommandCategory.安全管理,
-                description="列出所有Secret",
-                syntax="kubectl get secrets [OPTIONS]",
-                example="kubectl get secrets -o yaml",
-                kubernetes_concept="Secret列表",
-                related_commands=["kubectl describe secret"],
-                difficulty=4
-            ),
             "kubectl describe secret": KubectlCommand(
                 name="kubectl describe secret",
                 category=CommandCategory.安全管理,
@@ -899,26 +889,6 @@ class KubernetesCommandManager:
                 kubernetes_concept="Secret详情",
                 related_commands=["kubectl get secrets"],
                 difficulty=4
-            ),
-            "kubectl delete secret": KubectlCommand(
-                name="kubectl delete secret",
-                category=CommandCategory.安全管理,
-                description="删除Secret",
-                syntax="kubectl delete secret NAME",
-                example="kubectl delete secret old-secret",
-                kubernetes_concept="Secret删除",
-                related_commands=["kubectl get secrets"],
-                difficulty=4
-            ),
-            "kubectl auth can-i": KubectlCommand(
-                name="kubectl auth can-i",
-                category=CommandCategory.安全管理,
-                description="检查当前用户的权限",
-                syntax="kubectl auth can-i VERB RESOURCE [--namespace=NAMESPACE]",
-                example="kubectl auth can-i create pods --namespace=default",
-                kubernetes_concept="权限检查",
-                related_commands=["kubectl auth"],
-                difficulty=5
             ),
             "kubectl get serviceaccounts": KubectlCommand(
                 name="kubectl get serviceaccounts",
@@ -939,133 +909,132 @@ class KubernetesCommandManager:
                 kubernetes_concept="ServiceAccount详情",
                 related_commands=["kubectl get serviceaccounts"],
                 difficulty=4
-            ),
-        }
-    
+            )}
+
     def get_command(self, command_name: str) -> Optional[KubectlCommand]:
         """获取命令信息
-        
+
         根据命令名称获取命令的详细信息。
-        
+
         Args:
             command_name: 命令全名，如"kubectl get pods"
-            
+
         Returns:
             Optional[KubectlCommand]: 命令信息对象，如果不存在则返回None
         """
         if not isinstance(command_name, str):
             raise ValueError("命令名称必须是字符串类型")
-        
+
         return self.commands.get(command_name)
-    
+
     def get_commands_by_category(self, category: CommandCategory) -> List[KubectlCommand]:
         """按分类获取命令
-        
+
         获取指定分类下的所有命令。
-        
+
         Args:
             category: 命令分类
-            
+
         Returns:
             List[KubectlCommand]: 命令列表
         """
         if not isinstance(category, CommandCategory):
             raise ValueError("分类必须是CommandCategory枚举类型")
-        
+
         return [cmd for cmd in self.commands.values() if cmd.category == category]
-    
+
     def get_commands_by_difficulty(self, difficulty: int) -> List[KubectlCommand]:
         """按难度获取命令
-        
+
         获取指定难度级别的所有命令。
-        
+
         Args:
             difficulty: 难度级别（1-5）
-            
+
         Returns:
             List[KubectlCommand]: 命令列表
         """
         if not isinstance(difficulty, int) or difficulty < 1 or difficulty > 5:
             raise ValueError("难度必须是1-5之间的整数")
-        
+
         return [cmd for cmd in self.commands.values() if cmd.difficulty == difficulty]
-    
+
     def get_all_commands(self) -> List[str]:
         """获取所有命令名
-        
+
         返回所有已定义命令的名称列表。
-        
+
         Returns:
             List[str]: 命令名称列表
         """
         return sorted(list(self.commands.keys()))
-    
+
     def get_command_categories(self) -> List[CommandCategory]:
         """获取所有命令分类
-        
+
         返回所有已使用的命令分类列表。
-        
+
         Returns:
             List[CommandCategory]: 命令分类列表
         """
         return sorted(list(set(cmd.category for cmd in self.commands.values())), key=lambda x: x.value)
-    
+
     def validate_command(self, command: str) -> Tuple[bool, Optional[KubectlCommand], str]:
         """验证命令是否正确
-        
+
         检查命令是否已定义，并返回验证结果。
-        
+
         Args:
             command: 要验证的命令
-            
+
         Returns:
             Tuple[bool, Optional[KubectlCommand], str]: 验证结果，包含是否正确、命令信息和消息
         """
         if not isinstance(command, str):
             return False, None, "命令必须是字符串类型"
-        
+
         if command in self.commands:
             cmd = self.commands[command]
             return True, cmd, f"✓ 掌握命令: {command}\n  说明: {cmd.description}"
-        
+
         # 检查是否是大小写错误
         for cmd_name in self.commands:
             if command.lower() == cmd_name.lower():
                 return False, None, f"命令格式不正确，请使用完整命令格式: {cmd_name}"
-        
+
         # 检查是否是部分匹配
         partial_matches = [cmd_name for cmd_name in self.commands if command in cmd_name]
         if partial_matches:
             return False, None, f"✗ 命令不完整，可能的命令有: {', '.join(partial_matches)}"
-        
+
         return False, None, "✗ 未知命令，请检查拼写"
-    
+
     def get_practice_question(self, chapter_commands: List[str]) -> Optional[Dict[str, Any]]:
         """生成练习题
-        
+
         根据指定的章节命令列表生成一道练习题。
-        
+
         Args:
             chapter_commands: 章节命令列表
-            
+
         Returns:
             Optional[Dict[str, Any]]: 练习题字典，包含问题、提示、答案等
         """
         if not chapter_commands or not isinstance(chapter_commands, list):
             return None
-        
+
         # 过滤掉无效命令
         valid_commands = [cmd for cmd in chapter_commands if cmd in self.commands]
         if not valid_commands:
             return None
-        
+
         # 从本章命令中随机选择
         target_command = random.choice(valid_commands)
         cmd_info = self.commands.get(target_command)
-        
+
         if not cmd_info:
             return None
-        
+
         return {
             "question": f"如何{cmd_info.description}？",
             "hint": f"使用 {cmd_info.syntax} 格式",
@@ -1076,35 +1045,35 @@ class KubernetesCommandManager:
             "concept": cmd_info.kubernetes_concept,
             "difficulty": cmd_info.difficulty
         }
-    
+
     def get_random_challenge(self, mastered_commands: List[str], difficulty: Optional[int] = None) -> Optional[Dict[str, Any]]:
         """生成随机挑战
-        
+
         生成一个随机的挑战题，可指定难度。
-        
+
         Args:
             mastered_commands: 已掌握的命令列表
             difficulty: 挑战难度（1-5），如果为None则随机
-            
+
         Returns:
             Optional[Dict[str, Any]]: 挑战题字典
         """
         # 选择未掌握的命令
         mastered_set = set(mastered_commands)
         available_commands = [cmd for cmd in self.commands.values() if cmd.name not in mastered_set]
-        
+
         if not available_commands:
             return None
-        
+
         # 根据难度过滤
         if difficulty is not None:
             available_commands = [cmd for cmd in available_commands if cmd.difficulty == difficulty]
             if not available_commands:
                 return None
-        
+
         # 随机选择一个命令
         target_cmd = random.choice(available_commands)
-        
+
         return {
             "title": f"挑战: {target_cmd.kubernetes_concept}",
             "description": f"请写出{target_cmd.description}的命令",
@@ -1116,45 +1085,45 @@ class KubernetesCommandManager:
             "difficulty": target_cmd.difficulty,
             "related_commands": target_cmd.related_commands
         }
-    
+
     def get_progress_report(self, mastered_commands: List[str]) -> Dict[str, Any]:
         """获取学习进度报告
-        
+
         生成详细的学习进度报告，包括总进度、分类进度等。
-        
+
         Args:
             mastered_commands: 已掌握的命令列表
-            
+
         Returns:
             Dict[str, Any]: 进度报告字典
         """
         if not isinstance(mastered_commands, list):
             mastered_commands = []
-        
+
         total = len(self.commands)
         mastered_set = set(mastered_commands)
         mastered = len([cmd for cmd in mastered_set if cmd in self.commands])
-        
+
         by_category = {}
         for category in self.get_command_categories():
             category_commands = self.get_commands_by_category(category)
             category_total = len(category_commands)
             if category_total == 0:
                 continue
-                
+
             category_mastered = len([
                 c.name
                 for c in category_commands
                 if c.name in mastered_set
             ])
-            
+
             by_category[category.value] = {
                 "category_name": category.name,
                 "total": category_total,
                 "mastered": category_mastered,
                 "percentage": round(category_mastered / category_total * 100, 1) if category_total > 0 else 0
             }
-        
+
         # 按难度统计
         by_difficulty = {}
         for difficulty in range(1, 6):
@@ -1162,24 +1131,24 @@ class KubernetesCommandManager:
             diff_total = len(diff_commands)
             if diff_total == 0:
                 continue
-                
+
             diff_mastered = len([
                 c.name
                 for c in diff_commands
                 if c.name in mastered_set
             ])
-            
+
             by_difficulty[difficulty] = {
                 "total": diff_total,
                 "mastered": diff_mastered,
                 "percentage": round(diff_mastered / diff_total * 100, 1) if diff_total > 0 else 0
             }
-        
+
         remaining_commands = [
-            cmd for cmd in self.commands.keys() 
+            cmd for cmd in self.commands.keys()
             if cmd not in mastered_set
         ]
-        
+
         return {
             "total_commands": total,
             "mastered_commands": mastered,

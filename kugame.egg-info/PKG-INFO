@@ -1,3 +1,26 @@
+Metadata-Version: 2.4
+Name: kugame
+Version: 1.0.0
+Summary: 游戏化学习Kubernetes的命令行工具 - 武侠风格
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Education
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: pyyaml>=6.0
+Requires-Dist: rich>=12.0.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.0.0; extra == "dev"
+Requires-Dist: black>=23.0.0; extra == "dev"
+Requires-Dist: mypy>=1.0.0; extra == "dev"
+
 # KuGame - 游戏化学习Kubernetes命令行工具
 
 <div align="center">
@@ -214,30 +237,6 @@ KuGame的游戏流程设计得既简单又富有挑战性。玩家从「序章�
 掌门真人传授您最后的秘术——YAML之道：「此乃YAML之道，可批量、可更新、可回滚。掌握此术，你便可以一敌万，以一当十！」
 
 您将学习到：`kubectl apply`、`kubectl patch`、`kubectl set image`、`kubectl rollout undo`等命令。这些命令让您能够以「不变应万变」，从容应对各种复杂场景。
-
-### 第八章：网络与安全
-
-血魔被击败，但宗门的防御体系也受到重创。大师兄传授您「网络与安全」之术，这是守护宗门的最后防线。
-
-您将学习到：`kubectl get networkpolicies`、`kubectl get roles`、`kubectl get rolebindings`、`kubectl auth can-i`等命令。这些命令让您能够建立坚固的防御阵法，确保宗门安全。
-
-### 第九章：集群管理
-
-经过一系列战斗和修炼，您已成长为宗门核心弟子。掌门真人决定传授您「集群管理」之术，让您成为真正的宗门领袖。
-
-您将学习到：`kubectl cluster-info`、`kubectl api-resources`、`kubectl config view`、`kubectl version`等命令。这些命令让您能够俯瞰整个修真界，掌控集群命运。
-
-### 第十章：云厂商管理
-
-魔教之乱平定后，修真界进入跨云时代。各大云厂商使者带来了云厂商管理心法。
-
-您将学习到各主流云厂商（阿里云、腾讯云、华为云、火山引擎）的Kubernetes管理命令，如`aliyun ack list-clusters`、`tkecluster list`、`cce cluster list`、`vke cluster list`等。这些命令让您在跨云时代如鱼得水。
-
-### 第十一章：云厂商高级特性
-
-掌握了基础的云厂商管理后，您开始学习各云厂商的高级特性。
-
-您将深入了解各云厂商特有的Kubernetes扩展功能和最佳实践，进一步提升跨云管理能力。
 
 ### 终章：飞升大成
 

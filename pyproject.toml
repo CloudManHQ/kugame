@@ -53,3 +53,10 @@ python_version = "3.9"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
+
+[tool.flake8]
+max-line-length = 100
+ignore = [
+    "W605",  # 忽略ASCII图像中的转义序列警告
+    "E501"   # 与black的100字符行长度保持一致
+]
