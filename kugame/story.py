@@ -6,7 +6,7 @@
 
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Any
-from enum import enum
+from enum import Enum
 
 
 class Chapter(Enum):

@@ -7,10 +7,10 @@ def fix_commands_dict_indentation(file_path):
     """修复commands字典的整体缩进"""
     with open(file_path, 'r', encoding='utf-8') as f:
         lines = f.readlines()
-    
+
     fixed_lines = []
     in_commands_dict = False
-    
+
     for line in lines:
         # 检查是否进入commands字典
         if 'commands: Dict[str, Any] = {' in line:
@@ -26,10 +26,10 @@ def fix_commands_dict_indentation(file_path):
             fixed_lines.append(fixed_line)
         else:
             fixed_lines.append(line)
-    
+
     with open(file_path, 'w', encoding='utf-8') as f:
         f.writelines(fixed_lines)
-    
+
     print("commands字典整体缩进已修复")
 
 if __name__ == "__main__":

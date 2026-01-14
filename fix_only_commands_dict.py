@@ -7,11 +7,11 @@ def fix_only_commands_dict(file_path):
     """只修复_initialize_commands方法内commands字典的缩进"""
     with open(file_path, 'r', encoding='utf-8') as f:
         lines = f.readlines()
-    
+
     fixed_lines = []
     in_initialize_method = False
     in_commands_dict = False
-    
+
     for line in lines:
         # 检查是否进入_initialize_commands方法
         if 'def _initialize_commands' in line:
@@ -33,35 +33,35 @@ def fix_only_commands_dict(file_path):
                 if not stripped:  # 空行
                     fixed_lines.append('\n')
                     continue
-                
+
                 # 命令定义行（字典键）
-                if (':' in stripped and 
-                    ('KubectlCommand' in stripped or 
-                     'GenericCommand' in stripped or 
+                if (':' in stripped and
+                    ('KubectlCommand' in stripped or
+                     'GenericCommand' in stripped or
                      'CloudVendorCommand' in stripped)):
                     fixed_line = '            ' + stripped  # 12个空格
                     fixed_lines.append(fixed_line)
-                
+
                 # 注释行
                 elif stripped.startswith('#'):
                     fixed_line = '            ' + stripped  # 12个空格
                     fixed_lines.append(fixed_line)
-                
+
                 # 命令内部参数行
                 elif stripped.startswith(('name=', 'category=', 'description=', 'syntax=', 'example=', 'tool=', 'vendor=', 'service=', 'kubernetes_concept=', 'related_commands=', 'difficulty=')):
                     fixed_line = '                ' + stripped  # 16个空格
                     fixed_lines.append(fixed_line)
-                
+
                 # 命令结束括号行
                 elif stripped.startswith('),'):
                     fixed_line = '            ' + stripped  # 12个空格
                     fixed_lines.append(fixed_line)
-                
+
                 # 字典结束括号行
                 elif stripped.startswith('}'):
                     fixed_line = '        ' + stripped  # 8个空格（与return commands对齐）
                     fixed_lines.append(fixed_line)
-                
+
                 # 其他行在commands字典内保持不变
                 else:
                     fixed_lines.append(line)
@@ -71,10 +71,10 @@ def fix_only_commands_dict(file_path):
         else:
             # 文件其他部分的行保持不变
             fixed_lines.append(line)
-    
+
     with open(file_path, 'w', encoding='utf-8') as f:
         f.writelines(fixed_lines)
-    
+
     print("已精确修复_initialize_commands方法内commands字典的缩进")
 
 if __name__ == "__main__":
