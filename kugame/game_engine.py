@@ -123,6 +123,9 @@ class GameEngine:
         self.question_bank = QuestionBank()
         self._load_question_bank()
 
+        # 章节试炼会话（单次闯关的题目序列与答题状态）
+        self._chapter_session: Optional[Dict[str, Any]] = None
+
     # 章节 -> 题库分类映射，用于按学习进度出题
     CHAPTER_CATEGORY_MAP: Dict[str, List[K8sCategory]] = {
         "prologue": [K8sCategory.基础概念],
@@ -682,6 +685,227 @@ class GameEngine:
             rewards["stamina"] = -int(result_value)
         return rewards
 
+    # ==================== 章节试炼系统方法 ====================
+
+    # 章节试炼开放的知识分类（后续按需扩展）
+    CHAPTER_CHALLENGE_CATEGORIES: tuple = ("concepts", "network", "storage")
+
+    # 关卡难度分层：主难度带 + 回填锚点（题量不足时向锚点就近难度回填）
+    CHAPTER_TIERS: tuple = (
+        {"tier": 1, "name": "初窥", "difficulties": [1, 2], "anchor": 2, "pass_exp": 100},
+        {"tier": 2, "name": "进阶", "difficulties": [3], "anchor": 3, "pass_exp": 200},
+        {"tier": 3, "name": "登峰", "difficulties": [4, 5], "anchor": 5, "pass_exp": 350},
+    )
+
+    TIER_QUESTIONS_TARGET = 10  # 每关题目目标数量
+    TIER_MIN_QUESTIONS = 4      # 开启一关所需的最低题数
+
+    def _chapter_tier_config(self, tier: int) -> Dict[str, Any]:
+        for cfg in self.CHAPTER_TIERS:
+            if cfg["tier"] == tier:
+                return cfg
+        raise ValueError(f"无效的关卡编号: {tier}")
+
+    def _chapter_tier_questions(self, pool: List[Question], cfg: Dict[str, Any]) -> List[Question]:
+        """选题：优先取本关主难度带，不足目标数时按锚点就近难度回填"""
+        target = min(self.TIER_QUESTIONS_TARGET, len(pool))
+        primary = [q for q in pool if q.difficulty.level in cfg["difficulties"]]
+        random.shuffle(primary)
+        selected = primary[:target]
+        if len(selected) < target:
+            chosen_ids = {q.id for q in selected}
+            rest = [q for q in pool if q.id not in chosen_ids]
+            random.shuffle(rest)
+            rest.sort(key=lambda q: abs(q.difficulty.level - cfg["anchor"]))
+            selected.extend(rest[:target - len(selected)])
+        return selected
+
+    def _chapter_progress_entry(self, category_value: str) -> Dict[str, Any]:
+        if not self.player:
+            return {}
+        return self.player.chapter_progress.setdefault(category_value, {"tiers": {}, "highest_passed": 0})
+
+    def _chapter_tier_unlocked(self, progress: Dict[str, Any], tier: int) -> bool:
+        if tier <= 1:
+            return True
+        return bool(progress.get("tiers", {}).get(str(tier - 1), {}).get("passed"))
+
+    @staticmethod
+    def _chapter_stars(correct: int, total: int) -> int:
+        ratio = correct / total if total else 0.0
+        if ratio >= 0.9:
+            return 3
+        if ratio >= 0.8:
+            return 2
+        return 1
+
+    def get_chapter_challenges(self) -> List[Dict[str, Any]]:
+        """获取所有开放的章节试炼及其三关进度状态"""
+        challenges: List[Dict[str, Any]] = []
+        for value in self.CHAPTER_CHALLENGE_CATEGORIES:
+            try:
+                cat = K8sCategory(value)
+            except ValueError:
+                continue
+            pool = self.question_bank.get_questions(category=cat, limit=1000)
+            progress = self.player.chapter_progress.get(value, {}) if self.player else {}
+
+            tiers_view = []
+            for idx, cfg in enumerate(self.CHAPTER_TIERS, start=1):
+                tinfo = progress.get("tiers", {}).get(str(idx), {})
+                tiers_view.append({
+                    "tier": idx,
+                    "name": cfg["name"],
+                    "difficulty_label": "+".join(str(d) for d in cfg["difficulties"]) + "星",
+                    "question_count": min(self.TIER_QUESTIONS_TARGET, len(pool)),
+                    "unlocked": len(pool) >= self.TIER_MIN_QUESTIONS and self._chapter_tier_unlocked(progress, idx),
+                    "passed": bool(tinfo.get("passed")),
+                    "best_correct": int(tinfo.get("best_correct", 0)),
+                    "stars": int(tinfo.get("stars", 0)),
+                })
+            challenges.append({
+                "category": value,
+                "name": cat.name,
+                "tiers": tiers_view,
+                "total_passed": sum(1 for t in tiers_view if t["passed"]),
+            })
+        return challenges
+
+    def start_chapter_tier(self, category_value: str, tier: int) -> Dict[str, Any]:
+        """开始一次章节闯关会话
+
+        Args:
+            category_value: 题库分类value（如 concepts / network / storage）
+            tier: 关卡编号 1-3
+
+        Returns:
+            Dict: 会话摘要；未解锁或题量不足时 success=False
+        """
+        if not self.player:
+            raise ValueError("玩家未初始化，无法进行章节试炼")
+
+        try:
+            cat = K8sCategory(category_value)
+        except ValueError:
+            raise ValueError(f"未开放的试炼章节: {category_value}")
+
+        cfg = self._chapter_tier_config(tier)
+        progress = self._chapter_progress_entry(category_value)
+        if not self._chapter_tier_unlocked(progress, tier):
+            prev_name = self._chapter_tier_config(tier - 1)["name"] if tier > 1 else ""
+            return {"success": False, "message": f"请先通过{prev_name}关卡"}
+
+        pool = self.question_bank.get_questions(category=cat, limit=1000)
+        if len(pool) < self.TIER_MIN_QUESTIONS:
+            return {"success": False, "message": f"「{cat.name}」题库不足，暂无法开启此关卡"}
+
+        questions = self._chapter_tier_questions(pool, cfg)
+        target = max(1, round(len(questions) * 0.7))
+        self._chapter_session = {
+            "category": category_value,
+            "category_name": cat.name,
+            "tier": tier,
+            "questions": questions,
+            "index": 0,
+            "correct": 0,
+            "target": target,
+        }
+        return {
+            "success": True,
+            "message": f"「{cat.name}」第{tier}关·{cfg['name']}开始！答对{target}/{len(questions)}题即可通关",
+            "total": len(questions),
+            "target": target,
+        }
+
+    def get_current_chapter_question(self) -> Optional[Dict[str, Any]]:
+        """获取当前正在作答的题目（公开视图，不含答案）"""
+        session = self._chapter_session
+        if not session or session["index"] >= len(session["questions"]):
+            return None
+        q = session["questions"][session["index"]]
+        return {
+            "id": q.id,
+            "type": q.type.value,
+            "difficulty": q.difficulty.level,
+            "question": q.question,
+            "options": q.options,
+            "index": session["index"] + 1,
+            "total": len(session["questions"]),
+            "correct_so_far": session["correct"],
+            "target": session["target"],
+        }
+
+    def answer_current_chapter_question(self, answer: Any) -> Dict[str, Any]:
+        """判答当前题目并推进会话；最后一题时结算关卡"""
+        session = self._chapter_session
+        if not session or session["index"] >= len(session["questions"]):
+            return {"success": False, "message": "没有进行中的章节答题"}
+
+        q = session["questions"][session["index"]]
+        is_correct, feedback = q.check_answer(answer)
+
+        result: Dict[str, Any] = {
+            "success": True,
+            "correct": is_correct,
+            "feedback": feedback,
+            "correct_answer": q.correct_answer,
+            "answered_count": session["index"] + 1,
+            "correct_so_far": session["correct"],
+            "target": session["target"],
+        }
+
+        if is_correct:
+            session["correct"] += 1
+        result["correct_so_far"] = session["correct"]
+
+        session["index"] += 1
+        if session["index"] < len(session["questions"]):
+            result["finished"] = False
+            return result
+
+        # —— 关卡结算 ——
+        category_value = session["category"]
+        total = len(session["questions"])
+        correct = session["correct"]
+        passed = correct >= session["target"]
+        stars = self._chapter_stars(correct, total) if passed else 0
+
+        exp_gained = 0
+        progress = self._chapter_progress_entry(category_value)
+        tier_key = str(session["tier"])
+        tier_info = progress["tiers"].setdefault(
+            tier_key, {"passed": False, "best_correct": 0, "target": total, "stars": 0}
+        )
+        first_clear = passed and not tier_info.get("passed")
+
+        tier_info["best_correct"] = max(int(tier_info.get("best_correct", 0)), correct)
+        tier_info["target"] = total
+        if passed:
+            tier_info["passed"] = True
+            tier_info["stars"] = max(int(tier_info.get("stars", 0)), stars)
+            passed_count = sum(
+                1 for i in range(1, len(self.CHAPTER_TIERS) + 1)
+                if progress["tiers"].get(str(i), {}).get("passed")
+            )
+            progress["highest_passed"] = passed_count
+            if first_clear and self.player:
+                pass_cfg = self._chapter_tier_config(session["tier"])
+                exp_gained = pass_cfg["pass_exp"]
+                self.player.gain_experience(exp_gained)
+
+        self._chapter_session = None
+        result.update({
+            "finished": True,
+            "category": category_value,
+            "category_name": session["category_name"],
+            "tier": session["tier"],
+            "passed": passed,
+            "stars": stars,
+            "exp_gained": exp_gained,
+            "first_clear": first_clear,
+        })
+        return result
+
     def get_menu_options(self) -> List[Dict[str, str]]:
         """获取菜单选项
 
@@ -704,6 +928,7 @@ class GameEngine:
             {"id": "pet", "name": "🐾 灵兽园", "description": "寻访、培养、训练灵兽伙伴"},
             {"id": "gem", "name": "💎 宝石阁", "description": "采矿、镶嵌、合成宝石"},
             {"id": "event", "name": "🎲 奇遇探险", "description": "触发随机事件与事件链"},
+            {"id": "chapter", "name": "🏯 章节试炼", "description": "按知识章节闯关：基础概念/网络/存储"},
             {"id": "checkin", "name": "📅 每日签到", "description": "领取每日签到奖励"},
             {"id": "help", "name": "❓ 帮助指南", "description": "游戏帮助和系统说明"},
             {"id": "save", "name": "💾 保存进度", "description": "保存当前进度"},

@@ -203,7 +203,10 @@ class Player:
     
     # 事件链系统（延迟初始化）
     event_chain_data: Optional[Dict[str, Any]] = None
-    
+
+    # 章节试炼进度：{分类value: {"tiers": {"1": {"passed","best_correct","target","stars"}}, "highest_passed": int}}
+    chapter_progress: Dict[str, Any] = field(default_factory=dict)
+
     # 体力系统
     stamina: int = 100
     max_stamina: int = 100
@@ -856,6 +859,8 @@ class Player:
             "gem_slots_data": [s.to_dict() for s in self._gem_slots] if hasattr(self, '_gem_slots') and self._gem_slots else self.gem_slots_data,
             # 事件链系统
             "event_chain_data": self.event_manager.to_dict() if hasattr(self, '_event_manager') and self._event_manager else self.event_chain_data,
+            # 章节试炼进度
+            "chapter_progress": self.chapter_progress,
             # 体力系统
             "stamina": self.stamina,
             "max_stamina": self.max_stamina,
@@ -1029,6 +1034,8 @@ class Player:
                 gem_slots_data=data.get("gem_slots_data"),
                 # 事件链系统
                 event_chain_data=data.get("event_chain_data"),
+                # 章节试炼进度
+                chapter_progress=data.get("chapter_progress", {}),
                 # 体力系统
                 stamina=data.get("stamina", 100),
                 max_stamina=data.get("max_stamina", 100),

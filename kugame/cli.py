@@ -164,6 +164,8 @@ class CLI:
             self.gem_menu()
         elif action == "event":
             self.event_menu()
+        elif action == "chapter":
+            self.chapter_menu()
         elif action == "checkin":
             self.daily_checkin()
         elif action == "help":
@@ -1675,6 +1677,151 @@ class CLI:
             pass
         self.console.print("[red]无效编号[/red]")
         return None
+
+    # ==================== 章节试炼 ====================
+
+    def chapter_menu(self) -> None:
+        """章节试炼菜单：按知识分类闯关"""
+        self.clear_screen()
+        self.console.print("[bold cyan]" + "═" * 50)
+        self.console.print("[bold cyan]│  🏯  章节试炼  🏯  │")
+        self.console.print("[bold cyan]" + "═" * 50)
+        self.console.print()
+
+        if not self.engine.player:
+            self.console.print("[red]玩家未初始化[/red]")
+            return
+
+        challenges = self.engine.get_chapter_challenges()
+        for idx, ch in enumerate(challenges, 1):
+            tags = []
+            for t in ch["tiers"]:
+                if t["passed"]:
+                    tags.append(f"{t['name']} ★{t['stars']}")
+                elif t["unlocked"]:
+                    tags.append(f"{t['name']} 可挑战")
+                else:
+                    tags.append(f"{t['name']} 未解锁")
+            self.console.print(f"[bold]{idx}. {ch['name']}[/bold]（已通关 {ch['total_passed']}/3 关）")
+            self.console.print("　".join(tags))
+        self.console.print()
+        choice = Prompt.ask("选择试炼章节（0返回）", default="0")
+        try:
+            sel = int(choice)
+        except ValueError:
+            return
+        if not (1 <= sel <= len(challenges)):
+            return
+        self._chapter_tier_menu(challenges[sel - 1])
+
+    def _chapter_tier_menu(self, challenge: Dict[str, Any]) -> None:
+        """章节内关卡选择与反复挑战"""
+        while True:
+            self.clear_screen()
+            self.console.print(f"[bold cyan]── {challenge['name']} · 章节试炼 ──")
+            self.console.print()
+            tiers = challenge["tiers"]
+            for idx, t in enumerate(tiers, 1):
+                if t["passed"]:
+                    status = (
+                        f"[green]已通关 {'★' * t['stars']}"
+                        f"{'☆' * (3 - t['stars'])}（最佳答对 {t['best_correct']}/{t['question_count']}）[/green]"
+                    )
+                elif t["unlocked"]:
+                    status = f"[yellow]可挑战（难度{t['difficulty_label']}，{t['question_count']}题）[/yellow]"
+                else:
+                    status = "[dim]未解锁：先通过上一关[/dim]"
+                self.console.print(f"{idx}. 第{t['tier']}关·{t['name']}　{status}")
+            self.console.print()
+            pick = Prompt.ask("选择关卡（0返回）", default="0")
+            try:
+                tier_sel = int(pick)
+            except ValueError:
+                continue
+            if tier_sel == 0:
+                return
+            if not (1 <= tier_sel <= len(tiers)):
+                continue
+
+            result = self.engine.start_chapter_tier(challenge["category"], tier_sel)
+            if not result.get("success"):
+                self.console.print(f"[red]{result.get('message', '无法开始')}[/red]")
+                input("按回车键继续...")
+                continue
+
+            self._run_chapter_session(result)
+            challenge = next(
+                (c for c in self.engine.get_chapter_challenges() if c["category"] == challenge["category"]),
+                challenge,
+            )
+
+    def _run_chapter_session(self, start_result: Dict[str, Any]) -> None:
+        """逐题作答直至关卡结算"""
+        target = start_result["target"]
+        self.clear_screen()
+        self.console.print(start_result["message"])
+        input("按回车键开始答题...")
+
+        while True:
+            view = self.engine.get_current_chapter_question()
+            if not view:
+                break
+            self.clear_screen()
+            self.console.print(
+                f"[bold cyan]第 {view['index']}/{view['total']} 题[/bold cyan]"
+                f"　答对 {view['correct_so_far']}/{target}"
+                f"　难度{'★' * view['difficulty']}"
+            )
+            self.console.print()
+            self.console.print(f"[bold]{view['question']}[/bold]")
+            answer: Any = ""
+            qtype = view["type"]
+            if view["options"]:
+                for opt in view["options"]:
+                    self.console.print(opt)
+
+            if qtype == "multiple_choice":
+                raw = Prompt.ask("多选题，输入全部选项字母（如 AC）")
+                letters = sorted({c.upper() for c in raw.replace(",", "").replace(" ", "") if c.isalpha()})
+                answer = letters or [""]
+            elif qtype == "true_false":
+                raw = Prompt.ask("判断对错（T/F）", choices=["T", "F"], default="T")
+                answer = "True" if raw.strip().upper() == "T" else "False"
+            else:
+                answer = Prompt.ask("请输入答案").strip()
+
+            result = self.engine.answer_current_chapter_question(answer)
+            if not result.get("success"):
+                self.console.print(f"[red]{result.get('message', '判题失败')}[/red]")
+                break
+
+            style = "green" if result["correct"] else "red"
+            self.console.print()
+            self.console.print(f"[{style}]{result['feedback']}[/{style}]")
+            input("\n按回车键继续...")
+
+            if result.get("finished"):
+                self.engine.save_game()
+                self._show_chapter_result(result)
+                break
+
+    def _show_chapter_result(self, result: Dict[str, Any]) -> None:
+        """显示章节关卡结算面板"""
+        if result["passed"]:
+            title, border = "🎉 关卡通过", "green"
+            body = f"星级：{'★' * result['stars']}{'☆' * (3 - result['stars'])}\n"
+            if result.get("first_clear") and result.get("exp_gained"):
+                body += f"首通奖励：+{result['exp_gained']} 经验值\n"
+        else:
+            title, border = "💪 挑战失败", "red"
+            body = "\n离通关线还差一点，再练练吧！\n"
+        text = (
+            f"[bold]{result['category_name']}[/bold] 第{result['tier']}关\n\n"
+            f"答对 {result['correct_so_far']}/{result['answered_count']}（通关线 {result['target']}）\n"
+            + body
+        )
+        self.console.print(Panel(text.rstrip(), title=title, border_style=border))
+        input("\n按回车键继续...")
 
     def gem_menu(self) -> None:
         """宝石阁菜单"""

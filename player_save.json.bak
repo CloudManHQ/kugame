@@ -1,6 +1,6 @@
 {
   "save_version": 2,
-  "name": "web_player",
+  "name": "演示侠",
   "sect": "青云宗",
   "level": 1,
   "experience": 0,
@@ -481,6 +481,7 @@
   "gem_inventory_data": null,
   "gem_slots_data": null,
   "event_chain_data": null,
+  "chapter_progress": {},
   "stamina": 100,
   "max_stamina": 100,
   "last_stamina_refresh": null
