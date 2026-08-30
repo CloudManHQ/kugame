@@ -10,6 +10,7 @@ export class GameLayout {
       { id: "inventory", name: "背包", icon: "fa-backpack" },
       { id: "shop", name: "商店", icon: "fa-store" },
       { id: "quests", name: "任务", icon: "fa-scroll" },
+      { id: "chapter", name: "试炼", icon: "fa-mountain" },
       { id: "k8s", name: "K8s", icon: "fa-dharmachakra" },
     ];
   }
@@ -100,6 +101,7 @@ export class GameLayout {
       inventory: "储物袋",
       shop: "坊市",
       quests: "任务堂",
+      chapter: "演武峰 · 章节试炼",
       k8s: "天机阁 · K8s 秘境",
     };
     return locations[this.activeTab] || "未知区域";

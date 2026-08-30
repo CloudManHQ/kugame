@@ -688,7 +688,7 @@ class GameEngine:
     # ==================== 章节试炼系统方法 ====================
 
     # 章节试炼开放的知识分类（后续按需扩展）
-    CHAPTER_CHALLENGE_CATEGORIES: tuple = ("concepts", "network", "storage")
+    CHAPTER_CHALLENGE_CATEGORIES: tuple = ("concepts", "network", "storage", "pod", "deployment", "security")
 
     # 关卡难度分层：主难度带 + 回填锚点（题量不足时向锚点就近难度回填）
     CHAPTER_TIERS: tuple = (
@@ -928,7 +928,7 @@ class GameEngine:
             {"id": "pet", "name": "🐾 灵兽园", "description": "寻访、培养、训练灵兽伙伴"},
             {"id": "gem", "name": "💎 宝石阁", "description": "采矿、镶嵌、合成宝石"},
             {"id": "event", "name": "🎲 奇遇探险", "description": "触发随机事件与事件链"},
-            {"id": "chapter", "name": "🏯 章节试炼", "description": "按知识章节闯关：基础概念/网络/存储"},
+            {"id": "chapter", "name": "🏯 章节试炼", "description": "六大知识章节闯关：概念/网络/存储/Pod/部署/安全"},
             {"id": "checkin", "name": "📅 每日签到", "description": "领取每日签到奖励"},
             {"id": "help", "name": "❓ 帮助指南", "description": "游戏帮助和系统说明"},
             {"id": "save", "name": "💾 保存进度", "description": "保存当前进度"},

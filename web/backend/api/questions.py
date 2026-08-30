@@ -122,7 +122,7 @@ async def get_question(question_id: str) -> dict:
 
 @router.post("/{question_id}/check")
 async def check_answer(question_id: str, request: CheckAnswerRequest) -> dict:
-    """判题并返回解析"""
+    """判题并返回解析（不下发正确答案，防前端作弊）"""
     question = _question_bank.get_question(question_id)
     if not question:
         raise HTTPException(status_code=404, detail="题目不存在")
@@ -131,7 +131,6 @@ async def check_answer(question_id: str, request: CheckAnswerRequest) -> dict:
     return {
         "correct": is_correct,
         "message": feedback,
-        "correct_answer": question.correct_answer,
         "explanation": question.explanation,
         "related_commands": question.related_commands,
     }

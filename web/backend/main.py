@@ -11,6 +11,7 @@ from api import (
     inventory_router,
     k8s_router,
     questions_router,
+    chapter_router,
 )
 
 
@@ -48,6 +49,7 @@ app.include_router(shop_router)
 app.include_router(inventory_router)
 app.include_router(k8s_router)
 app.include_router(questions_router)
+app.include_router(chapter_router)
 
 # WebSocket connection manager
 class ConnectionManager:

@@ -3,7 +3,7 @@
   "name": "web测试侠",
   "sect": "青云宗",
   "level": 1,
-  "experience": 66,
+  "experience": 99316,
   "cultivation": "凡人",
   "skills": [],
   "achievements": [],
@@ -336,7 +336,22 @@
   "equipped_weapon": null,
   "equipped_armor": null,
   "equipped_accessory": null,
-  "inventory": [],
+  "inventory": [
+    {
+      "id": "eq_1_6983",
+      "name": "木剑",
+      "equipment_type": "weapon",
+      "quality": "传说",
+      "level": 1,
+      "attack_bonus": 5,
+      "defense_bonus": 0,
+      "health_bonus": 0,
+      "exp_bonus": 0,
+      "streak_bonus": 0,
+      "description": "橙色品质的木剑",
+      "equipped": false
+    }
+  ],
   "skill_manager_data": {
     "sect": "青云宗",
     "skills": {

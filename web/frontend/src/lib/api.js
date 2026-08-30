@@ -133,6 +133,28 @@ class ApiClient {
   getNodeStatus() {
     return this.request("/api/k8s/nodes");
   }
+
+  // Chapter Challenge API
+  getChapters() {
+    return this.request("/api/chapter");
+  }
+
+  startChapterTier(category, tier) {
+    return this.request(`/api/chapter/${category}/tier/${tier}/start`, {
+      method: "POST",
+    });
+  }
+
+  getCurrentChapterQuestion() {
+    return this.request("/api/chapter/current");
+  }
+
+  answerChapter(answer) {
+    return this.request("/api/chapter/answer", {
+      method: "POST",
+      body: { answer },
+    });
+  }
 }
 
 export const api = new ApiClient();

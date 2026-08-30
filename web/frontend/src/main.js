@@ -2,6 +2,7 @@
 import { LoginPage } from "./pages/Login.js";
 import { GameLayout } from "./pages/Layout.js";
 import { Dashboard } from "./pages/Dashboard.js";
+import { ChapterPage } from "./pages/Chapter.js";
 import { gameStore, createWebSocketClient } from "./lib/store.js";
 import { api } from "./lib/api.js";
 import { toast } from "./components/ui/Toast.js";
@@ -138,6 +139,9 @@ class KuGameApp {
             <p class="text-muted-foreground">任务功能开发中...</p>
           </div>
         `;
+        break;
+      case "chapter":
+        new ChapterPage().mount(mainContent);
         break;
       case "k8s":
         mainContent.innerHTML = `

@@ -1,5 +1,6 @@
 """Web 后端路由集成测试（验证封装 kugame 核心包后的真实行为）"""
 # -*- coding: utf-8 -*-
+import json
 import os
 import sys
 
@@ -15,6 +16,14 @@ _PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _BACKEND_DIR = os.path.join(_PROJECT_ROOT, "web", "backend")
 if _BACKEND_DIR not in sys.path:
     sys.path.insert(0, _BACKEND_DIR)
+
+# 本地题库答案索引（后端 check 接口不再下发正确答案，测试自取）
+with open(os.path.join(_PROJECT_ROOT, "complete_question_bank.json"), encoding="utf-8") as _f:
+    _CORRECT_ANSWERS = {q["id"]: q["correct_answer"] for q in json.load(_f)["questions"]}
+
+
+def _correct_answer(question_id: str):
+    return _CORRECT_ANSWERS[question_id]
 
 
 @pytest.fixture(scope="module")
@@ -91,12 +100,8 @@ class TestWebBackendIntegration:
         qid = q["id"]
         assert "correct_answer" not in q  # 不泄题
 
-        # 用题库真实答案判题（通过 check 端点取得正确答案）
-        check = client.post(f"/api/questions/{qid}/check", json={"answer": "A"})
-        assert check.status_code == 200
-        correct_answer = check.json()["correct_answer"]
-
-        ans = client.post("/api/game/answer", json={"question_id": qid, "answer": correct_answer})
+        # 用题库真实答案判题（本地索引）
+        ans = client.post("/api/game/answer", json={"question_id": qid, "answer": _correct_answer(qid)})
         assert ans.status_code == 200
         result = ans.json()["data"]
         assert result["correct"] is True
@@ -157,9 +162,64 @@ class TestWebBackendIntegration:
 
         # 攻击：取一道题库题的正确答案保证命中
         q = client.get("/api/game/question").json()["data"]
-        correct_answer = client.post(
-            f"/api/questions/{q['id']}/check", json={"answer": "A"}
-        ).json()["correct_answer"]
-        attack = client.post("/api/combat/attack", json={"answer": correct_answer})
+        attack = client.post("/api/combat/attack", json={"answer": _correct_answer(q["id"])})
         assert attack.status_code == 200
         assert "combat" in attack.json()["data"]
+
+    def test_chapter_list_six_chapters(self, client):
+        """章节列表包含六章，进阶关默认锁定"""
+        resp = client.get("/api/chapter")
+        assert resp.status_code == 200
+        data = resp.json()["data"]
+        assert [c["category"] for c in data] == [
+            "concepts", "network", "storage", "pod", "deployment", "security",
+        ]
+        for ch in data:
+            assert ch["tiers"][1]["unlocked"] is False
+
+    def test_chapter_locked_start_rejected(self, client):
+        resp = client.post("/api/chapter/concepts/tier/2/start")
+        assert resp.status_code == 400
+
+    def test_chapter_unknown_category(self, client):
+        resp = client.post("/api/chapter/nonexistent/tier/1/start")
+        assert resp.status_code == 400
+
+    def test_chapter_full_pass_flow(self, client):
+        """答题流程：开始 -> 逐题答对 -> 结算与解锁"""
+        start = client.post("/api/chapter/concepts/tier/1/start")
+        assert start.status_code == 200
+        assert start.json()["data"]["total"] == 10
+
+        result = None
+        while True:
+            cur = client.get("/api/chapter/current")
+            if cur.status_code == 404:
+                break
+            view = cur.json()["data"]
+            answer = client.post(
+                "/api/chapter/answer", json={"answer": _correct_answer(view["id"])}
+            )
+            assert answer.status_code == 200
+            result = answer.json()["data"]
+            assert "correct_answer" in result  # 判答后反馈正确答案与解析
+
+        assert result["finished"] is True
+        assert result["passed"] is True
+
+        chapters = client.get("/api/chapter").json()["data"]
+        concepts = next(c for c in chapters if c["category"] == "concepts")
+        assert concepts["tiers"][0]["passed"] is True
+        assert concepts["tiers"][1]["unlocked"] is True
+
+    def test_chapter_answer_without_session(self, client):
+        resp = client.post("/api/chapter/answer", json={"answer": "A"})
+        assert resp.status_code == 400
+
+    def test_check_endpoint_never_leaks_answer(self, client):
+        """check 端点仅回判题结果，任何情况下不下发 correct_answer"""
+        q = client.get("/api/game/question").json()["data"]
+        for payload in ("A", "ZZZ"):
+            resp = client.post(f"/api/questions/{q['id']}/check", json={"answer": payload})
+            assert resp.status_code == 200
+            assert "correct_answer" not in resp.json()

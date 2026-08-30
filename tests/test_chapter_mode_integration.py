@@ -33,10 +33,12 @@ def _answer_all_correct(engine) -> dict:
 
 
 class TestChapterChallenges:
-    def test_lists_three_chapters_with_locked_tiers(self, engine):
+    def test_lists_chapters_with_locked_tiers(self, engine):
         challenges = engine.get_chapter_challenges()
 
-        assert [c["category"] for c in challenges] == ["concepts", "network", "storage"]
+        assert [c["category"] for c in challenges] == [
+            "concepts", "network", "storage", "pod", "deployment", "security",
+        ]
         for ch in challenges:
             assert ch["tiers"][0]["unlocked"] is True
             assert ch["tiers"][1]["unlocked"] is False  # 进阶需先通初窥

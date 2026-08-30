@@ -1767,9 +1767,10 @@ class CLI:
             if not view:
                 break
             self.clear_screen()
+            shown_correct = min(view["correct_so_far"], view["target"])
             self.console.print(
                 f"[bold cyan]第 {view['index']}/{view['total']} 题[/bold cyan]"
-                f"　答对 {view['correct_so_far']}/{target}"
+                f"　答对 {shown_correct}/{target}"
                 f"　难度{'★' * view['difficulty']}"
             )
             self.console.print()

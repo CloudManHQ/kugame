@@ -249,7 +249,7 @@ class Player:
 - `K8sCategory`: 14个知识分类
 
 **数据**:
-- `complete_question_bank.json`: 658道题目，100%含解析（难度分布：1×34 / 2×111 / 3×428 / 4×60 / 5×25）
+- `complete_question_bank.json`: 684道题目，100%含解析（难度分布：1×40 / 2×117 / 3×428 / 4×68 / 5×31）
 
 **集成方式**:
 - 引擎启动时自动加载题库（`GameEngine._load_question_bank`）
@@ -272,6 +272,16 @@ class Player:
 `Player.record_command_attempt()` 实现 `learning → familiar → mastered` 三态演进：
 - 首次答对进入 `learning`，连续答对推进至 `familiar`，再验证通过才写入 `kubectl_commands_mastered`（`mastered`）；
 - 答错可能使命令生疏降级；掌握度通过 `get_command_proficiency()` / `get_proficiency_summary()` 查询，CLI 命令手册与 Web `/api/k8s/commands` 均展示该状态。
+
+### 章节试炼（按知识分类闯关）
+
+`GameEngine` 的章节试炼系统将题库分类包装为闯关玩法：
+- 开放分类 `CHAPTER_CHALLENGE_CATEGORIES`（当前：concepts / network / storage / pod / deployment / security 六章）；
+- 每章三关 `CHAPTER_TIERS`：初窥(1-2★)→进阶(3★)→登峰(4-5★)，按上一关通过情况逐关解锁；
+- 选题策略 `_chapter_tier_questions`：优先本关主难度带随机抽取，不足10题时按锚点难度就近回填；
+- 通关线为题目数×70%，按正确率评 1-3 星，首通发放经验奖励；
+- 进度持久化在 `Player.chapter_progress`，CLI 通过主菜单「🏯 章节试炼」进入；
+- Web 端经 `/api/chapter` 系列接口（列表/开关/取题/判答）复用同一引擎，前端页面为「试炼」标签页。
 
 ### Web 后端（封装 kugame 核心包）
 

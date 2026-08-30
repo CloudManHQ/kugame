@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "total": 658,
+  "total": 712,
   "questions": [
     {
       "id": "q001",
@@ -15384,6 +15384,1145 @@
       ],
       "source": "P8补充",
       "created_at": "2026-07-29T17:38:47.118912"
+    },
+    {
+      "id": "d4_concepts_001",
+      "type": "single_choice",
+      "difficulty": 4,
+      "category": "concepts",
+      "question": "Kubernetes API Server 处理请求的正确生命周期顺序是？",
+      "options": [
+        "A. 认证 → 授权 → 准入控制 → 持久化到etcd",
+        "B. 授权 → 认证 → 持久化 → 准入控制",
+        "C. 准入控制 → 认证 → 授权 → 持久化",
+        "D. 持久化 → 认证 → 授权 → 准入控制"
+      ],
+      "correct_answer": "A",
+      "explanation": "API Server按序执行：Authentication（认证身份）→ Authorization（鉴权）→ Admission Control（准入校验/变更）→ 写入etcd。",
+      "tags": [
+        "概念",
+        "进阶"
+      ],
+      "related_commands": [],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T12:27:22.125909"
+    },
+    {
+      "id": "d4_concepts_002",
+      "type": "single_choice",
+      "difficulty": 4,
+      "category": "concepts",
+      "question": "关于CRD（CustomResourceDefinition）与Operator模式，正确的是？",
+      "options": [
+        "A. CRD只能由Kubernetes官方内置",
+        "B. Operator = CRD + 自定义控制器，用领域知识实现自动化运维逻辑",
+        "C. Operator必须用Go编写才能工作",
+        "D. CRD存储在Node本地而非etcd"
+      ],
+      "correct_answer": "B",
+      "explanation": "Operator模式通过CRD扩展API，并由自定义控制器封装运维知识；控制器可用任何语言编写。",
+      "tags": [
+        "概念",
+        "进阶"
+      ],
+      "related_commands": [
+        "kubectl get crd"
+      ],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T12:27:22.125909"
+    },
+    {
+      "id": "d4_concepts_003",
+      "type": "single_choice",
+      "difficulty": 4,
+      "category": "concepts",
+      "question": "etcd作为Kubernetes存储，其一致性与可用性的正确描述是？",
+      "options": [
+        "A. 强一致，需要奇数节点 quorum（多数派）才能写入",
+        "B. 最终一致，任意单节点都可独立写入",
+        "C. 强一致，但允许偶数节点脑裂写入",
+        "D. 无一致性保证，仅作缓存"
+      ],
+      "correct_answer": "A",
+      "explanation": "etcd基于Raft提供强一致性，写入需多数派确认，推荐3/5等奇数节点以容忍故障。",
+      "tags": [
+        "概念",
+        "进阶"
+      ],
+      "related_commands": [],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T12:27:22.125909"
+    },
+    {
+      "id": "d4_concepts_004",
+      "type": "single_choice",
+      "difficulty": 4,
+      "category": "concepts",
+      "question": "ResourceQuota与LimitRange的区别是？",
+      "options": [
+        "A. 二者完全等价",
+        "B. ResourceQuota限制命名空间资源总量，LimitRange约束单个容器/Pod的默认值与上下限",
+        "C. ResourceQuota作用于节点，LimitRange作用于集群",
+        "D. LimitRange只能限制CPU不能限制内存"
+      ],
+      "correct_answer": "B",
+      "explanation": "ResourceQuota是命名空间级总量配额；LimitRange为命名空间内单个Pod/容器注入默认requests/limits并校验上下限。",
+      "tags": [
+        "概念",
+        "进阶"
+      ],
+      "related_commands": [
+        "kubectl get resourcequota"
+      ],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T12:27:22.125909"
+    },
+    {
+      "id": "d4_concepts_005",
+      "type": "single_choice",
+      "difficulty": 4,
+      "category": "concepts",
+      "question": "Finalizer（终结器）在Kubernetes中的作用是？",
+      "options": [
+        "A. 加速Pod启动",
+        "B. 在对象真正删除前，等待关联清理动作完成的标记机制",
+        "C. 自动备份配置",
+        "D. 限制命名空间配额"
+      ],
+      "correct_answer": "B",
+      "explanation": "带finalizer的对象删除时先进入Terminating状态，直到控制器移除对应finalizer才真正删除，防止残留资源。",
+      "tags": [
+        "概念",
+        "进阶"
+      ],
+      "related_commands": [],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T12:27:22.125909"
+    },
+    {
+      "id": "d4_concepts_006",
+      "type": "single_choice",
+      "difficulty": 4,
+      "category": "concepts",
+      "question": "Owner Reference（属主引用）实现的效果是？",
+      "options": [
+        "A. Pod跨节点迁移",
+        "B. 级联删除：删除属主对象时，其从属对象（如ReplicaSet下的Pod）被自动清理",
+        "C. 跨命名空间共享配置",
+        "D. 提升镜像拉取速度"
+      ],
+      "correct_answer": "B",
+      "explanation": "ownerReferences建立对象树，垃圾回收器依据它级联删除从属对象（如Deployment→RS→Pod）。",
+      "tags": [
+        "概念",
+        "进阶"
+      ],
+      "related_commands": [],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T12:27:22.125909"
+    },
+    {
+      "id": "d4_concepts_007",
+      "type": "single_choice",
+      "difficulty": 4,
+      "category": "concepts",
+      "question": "Kubernetes API 的 Group/Version/Kind（GVK）体系中，Deployment 的正确Group是？",
+      "options": [
+        "A. core",
+        "B. apps",
+        "C. extensions.k8s.io",
+        "D. batch"
+      ],
+      "correct_answer": "B",
+      "explanation": "Deployment属于apps组v1版本；core组承载Pod/Service等无组名资源。",
+      "tags": [
+        "概念",
+        "进阶"
+      ],
+      "related_commands": [
+        "kubectl api-resources"
+      ],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T12:27:22.125909"
+    },
+    {
+      "id": "d4_concepts_008",
+      "type": "single_choice",
+      "difficulty": 4,
+      "category": "concepts",
+      "question": "关于Kubernetes弃用API的机制，正确的是？",
+      "options": [
+        "A. 删除旧版本后集群立即崩溃",
+        "B. API弃用有公告周期，新旧版本并存期可通过apiVersions查询，应用需在移除前迁移",
+        "C. etcd会自动重写清单",
+        "D. 弃用仅影响kubectl不影响控制器"
+      ],
+      "correct_answer": "B",
+      "explanation": "K8s遵循API弃用策略：先公告→并存期→移除；kubectl api-versions可查当前可用组版本。",
+      "tags": [
+        "概念",
+        "进阶"
+      ],
+      "related_commands": [
+        "kubectl api-versions"
+      ],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T12:27:22.125909"
+    },
+    {
+      "id": "d5_concepts_001",
+      "type": "single_choice",
+      "difficulty": 5,
+      "category": "concepts",
+      "question": "Kubernetes控制器Work Queue的速率限流（如令牌桶）目的是？",
+      "options": [
+        "A. 加密事件流",
+        "B. 在大量对象变更时平滑控制器 reconcile 频率，避免API过载与雪崩",
+        "C. 压缩etcd存储",
+        "D. 优先处理删除事件"
+      ],
+      "correct_answer": "B",
+      "explanation": "client-go的workqueue默认限流器对失败重试采用指数退避，防止控制器风暴打爆apiserver。",
+      "tags": [
+        "概念",
+        "高级"
+      ],
+      "related_commands": [],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T12:27:22.125909"
+    },
+    {
+      "id": "d5_concepts_002",
+      "type": "single_choice",
+      "difficulty": 5,
+      "category": "concepts",
+      "question": "Informer的DeltaFIFO队列中，事件类型Deleted的语义是？",
+      "options": [
+        "A. 仅表示etcd键被物理删除",
+        "B. Watch到对象删除事件或Replace同步时不再存在的对象，经删除策略后回调onDelete",
+        "C. Pod退出运行",
+        "D. 节点心跳丢失"
+      ],
+      "correct_answer": "B",
+      "explanation": "DeltaFIFO记录对象变更 deltas；Deleted可能来自Watch删除事件，也可能是ListAndWatch Replace时缺失的对象。",
+      "tags": [
+        "概念",
+        "高级"
+      ],
+      "related_commands": [],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T12:27:22.125909"
+    },
+    {
+      "id": "d5_concepts_003",
+      "type": "single_choice",
+      "difficulty": 5,
+      "category": "concepts",
+      "question": "etcd的Compaction（压缩）对Kubernetes的意义是？",
+      "options": [
+        "A. 删除所有历史Pod数据",
+        "B. 丢弃指定修订版本前的历史，防止etcd数据库膨胀进而触发存储配额告警",
+        "C. 压缩容器镜像",
+        "D. 合并多个etcd集群"
+      ],
+      "correct_answer": "B",
+      "explanation": "apiserver持续Watch依赖历史版本，但无限增长会撑爆etcd；定期Compaction+Defrag控制MVCC历史大小。",
+      "tags": [
+        "概念",
+        "高级"
+      ],
+      "related_commands": [],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T12:27:22.125909"
+    },
+    {
+      "id": "d5_concepts_004",
+      "type": "multiple_choice",
+      "difficulty": 5,
+      "category": "concepts",
+      "question": "下列哪些机制体现了Kubernetes声明式API的设计？（多选）",
+      "options": [
+        "A. 用户描述期望状态，控制器持续对齐实际状态",
+        "B. Watch机制推送变更事件驱动reconcile",
+        "C. kubectl run一次性执行容器即全部语义",
+        "D. 资源对象存储于etcd作为唯一事实源"
+      ],
+      "correct_answer": [
+        "A",
+        "B",
+        "D"
+      ],
+      "explanation": "声明式核心：期望状态存etcd、Watch驱动控制器协调；kubectl run的一次性命令式用法不体现该设计。",
+      "tags": [
+        "概念",
+        "高级"
+      ],
+      "related_commands": [],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T12:27:22.125909"
+    },
+    {
+      "id": "d5_storage_001",
+      "type": "single_choice",
+      "difficulty": 5,
+      "category": "storage",
+      "question": "PV回收策略Delete与Retain在CSI实现上的差异是？",
+      "options": [
+        "A. 无差异，仅注解不同",
+        "B. Delete触发CSI ControllerVolumeDelete删除后端存储，Retain仅移除PV对象保留数据",
+        "C. Retain会复制数据到备份集群",
+        "D. Delete会强制缩容StatefulSet"
+      ],
+      "correct_answer": "B",
+      "explanation": "Delete策略调用CSI DeleteVolume真正删除云盘；Retain保留后端卷与数据，需人工处理。",
+      "tags": [
+        "存储",
+        "高级"
+      ],
+      "related_commands": [
+        "kubectl get pv"
+      ],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T12:27:22.125909"
+    },
+    {
+      "id": "d5_storage_002",
+      "type": "single_choice",
+      "difficulty": 5,
+      "category": "storage",
+      "question": "卷挂载失败提示'volume node affinity conflict'最可能的原因是？",
+      "options": [
+        "A. 镜像拉取超时",
+        "B. PV具有nodeAffinity（如可用区绑定），Pod被调度到了卷所在拓扑之外的节点",
+        "C. kubelet版本过低",
+        "D. Service端口冲突"
+      ],
+      "correct_answer": "B",
+      "explanation": "PV可携带nodeAffinity限定可挂载拓扑；当Pod调度到不满足卷拓扑约束的节点时报此冲突。",
+      "tags": [
+        "存储",
+        "高级"
+      ],
+      "related_commands": [
+        "kubectl describe pod"
+      ],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T12:27:22.125909"
+    },
+    {
+      "id": "d1_network_001",
+      "type": "single_choice",
+      "difficulty": 1,
+      "category": "network",
+      "question": "在Kubernetes中，Service的主要作用是？",
+      "options": [
+        "A. 存储数据",
+        "B. 为一组Pod提供稳定的访问地址和负载均衡",
+        "C. 管理容器镜像",
+        "D. 调度Pod到节点"
+      ],
+      "correct_answer": "B",
+      "explanation": "Pod的IP会随重建而变化，Service提供固定访问入口并将流量负载均衡到后端Pod。",
+      "tags": [
+        "网络",
+        "基础"
+      ],
+      "related_commands": [
+        "kubectl get svc"
+      ],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T14:11:57.327187"
+    },
+    {
+      "id": "d1_network_002",
+      "type": "single_choice",
+      "difficulty": 1,
+      "category": "network",
+      "question": "下列哪项是Kubernetes中最简单的Service类型？",
+      "options": [
+        "A. LoadBalancer",
+        "B. ExternalName",
+        "C. ClusterIP",
+        "D. NodePort"
+      ],
+      "correct_answer": "C",
+      "explanation": "ClusterIP是默认类型，仅在集群内部提供虚拟IP访问，是其他类型的基础。",
+      "tags": [
+        "网络",
+        "基础"
+      ],
+      "related_commands": [
+        "kubectl get svc"
+      ],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T14:11:57.327187"
+    },
+    {
+      "id": "d1_network_003",
+      "type": "single_choice",
+      "difficulty": 1,
+      "category": "network",
+      "question": "想让集群外部的用户通过节点端口访问Service，应使用哪种类型？",
+      "options": [
+        "A. ClusterIP",
+        "B. NodePort",
+        "C. ExternalName",
+        "D. Headless"
+      ],
+      "correct_answer": "B",
+      "explanation": "NodePort在每个节点上开放一个端口（默认30000-32767），外部流量经节点端口转发到Service。",
+      "tags": [
+        "网络",
+        "基础"
+      ],
+      "related_commands": [
+        "kubectl get svc"
+      ],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T14:11:57.327187"
+    },
+    {
+      "id": "d1_network_004",
+      "type": "single_choice",
+      "difficulty": 1,
+      "category": "network",
+      "question": "Service通过什么找到后端Pod？",
+      "options": [
+        "A. Pod名称",
+        "B. 标签选择器（selector）",
+        "C. Pod IP",
+        "D. 命名空间名称"
+      ],
+      "correct_answer": "B",
+      "explanation": "Service通过selector匹配Pod的labels，将符合条件的Pod纳入其后端（Endpoints）。",
+      "tags": [
+        "网络",
+        "基础"
+      ],
+      "related_commands": [
+        "kubectl describe svc"
+      ],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T14:11:57.327187"
+    },
+    {
+      "id": "d2_network_001",
+      "type": "single_choice",
+      "difficulty": 2,
+      "category": "network",
+      "question": "集群内的Pod通过什么域名格式访问同命名空间的Service？",
+      "options": [
+        "A. service-name",
+        "B. service-name.namespace.svc.cluster.local",
+        "C. service-name.cluster.local.pod",
+        "D. svc-name.local"
+      ],
+      "correct_answer": "B",
+      "explanation": "完整DNS格式为<service>.<namespace>.svc.cluster.local；同命名空间内可直接用Service名访问。",
+      "tags": [
+        "网络",
+        "基础"
+      ],
+      "related_commands": [
+        "kubectl get svc"
+      ],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T14:11:57.327187"
+    },
+    {
+      "id": "d2_network_002",
+      "type": "true_false",
+      "difficulty": 2,
+      "category": "network",
+      "question": "Service的port字段指Service自身暴露的端口，targetPort指Pod容器实际监听的端口",
+      "options": null,
+      "correct_answer": "True",
+      "explanation": "port是Service对外端口，流量转发到targetPort对应的容器端口，两者可以不同。",
+      "tags": [
+        "网络",
+        "基础"
+      ],
+      "related_commands": [
+        "kubectl describe svc"
+      ],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T14:11:57.327187"
+    },
+    {
+      "id": "d2_network_003",
+      "type": "true_false",
+      "difficulty": 2,
+      "category": "network",
+      "question": "删除Service后，其背后的Pod也会被一并删除",
+      "options": null,
+      "correct_answer": "False",
+      "explanation": "Service只是流量入口，删除Service不影响Pod的存活，Pod由Deployment等控制器管理。",
+      "tags": [
+        "网络",
+        "基础"
+      ],
+      "related_commands": [],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T14:11:57.327187"
+    },
+    {
+      "id": "d1_storage_001",
+      "type": "single_choice",
+      "difficulty": 1,
+      "category": "storage",
+      "question": "Kubernetes中Volume的作用是？",
+      "options": [
+        "A. 加速镜像下载",
+        "B. 为Pod提供持久化或共享数据的存储",
+        "C. 管理网络策略",
+        "D. 限制CPU使用"
+      ],
+      "correct_answer": "B",
+      "explanation": "容器重启后数据会丢失，Volume为容器提供可持久化或共享的存储空间。",
+      "tags": [
+        "存储",
+        "基础"
+      ],
+      "related_commands": [],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T14:11:57.327187"
+    },
+    {
+      "id": "d1_storage_002",
+      "type": "single_choice",
+      "difficulty": 1,
+      "category": "storage",
+      "question": "关于emptyDir类型的Volume，正确的是？",
+      "options": [
+        "A. 数据永久保存在云盘",
+        "B. Pod被删除时数据也随之消失",
+        "C. 可以跨Pod共享",
+        "D. 必须手动创建云盘"
+      ],
+      "correct_answer": "B",
+      "explanation": "emptyDir在Pod创建时分配临时空间，随Pod删除而清空，适合临时数据。",
+      "tags": [
+        "存储",
+        "基础"
+      ],
+      "related_commands": [],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T14:11:57.327187"
+    },
+    {
+      "id": "d2_storage_001",
+      "type": "single_choice",
+      "difficulty": 2,
+      "category": "storage",
+      "question": "PersistentVolume（PV）与PersistentVolumeClaim（PVC）的关系是？",
+      "options": [
+        "A. PVC是集群级存储资源，PV是用户申请",
+        "B. PV是管理员/系统提供的实际存储，PVC是用户对存储的申请，两者绑定后使用",
+        "C. PV和PVC必须同名才能绑定",
+        "D. 一个PVC可以同时被多个任意Pod独占使用而不受访问模式限制"
+      ],
+      "correct_answer": "B",
+      "explanation": "PV代表实际存储资源，PVC表达用户需求；K8s按容量与访问模式将二者绑定。",
+      "tags": [
+        "存储",
+        "基础"
+      ],
+      "related_commands": [
+        "kubectl get pvc"
+      ],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T14:11:57.327187"
+    },
+    {
+      "id": "d2_storage_002",
+      "type": "true_false",
+      "difficulty": 2,
+      "category": "storage",
+      "question": "hostPath类型的Volume把节点上的文件或目录挂载给Pod使用",
+      "options": null,
+      "correct_answer": "True",
+      "explanation": "hostPath直接使用Node本机路径，适合节点级场景（如日志收集），但Pod漂移后数据不跟随。",
+      "tags": [
+        "存储",
+        "基础"
+      ],
+      "related_commands": [],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T14:11:57.327187"
+    },
+    {
+      "id": "d2_storage_003",
+      "type": "true_false",
+      "difficulty": 2,
+      "category": "storage",
+      "question": "Pod被删除后，绑定PVC的PV数据一定会被立即删除",
+      "options": null,
+      "correct_answer": "False",
+      "explanation": "数据是否删除取决于PV的回收策略（Retain保留/ Delete删除），并非一定立即删除。",
+      "tags": [
+        "存储",
+        "基础"
+      ],
+      "related_commands": [
+        "kubectl get pv"
+      ],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T14:11:57.327187"
+    },
+    {
+      "id": "d3_pod_001",
+      "type": "single_choice",
+      "difficulty": 3,
+      "category": "pod",
+      "question": "Init容器（Init Container）的特点是？",
+      "options": [
+        "A. 与主容器并行启动",
+        "B. 按定义顺序串行执行，全部成功后主容器才启动",
+        "C. 失败后会跳过继续启动主容器",
+        "D. 不能访问Volume"
+      ],
+      "correct_answer": "B",
+      "explanation": "Init容器按顺序逐个执行且必须成功，常用于等待依赖服务就绪或初始化数据。",
+      "tags": [],
+      "related_commands": [
+        "kubectl get pod"
+      ],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T19:44:34.214599"
+    },
+    {
+      "id": "d3_pod_002",
+      "type": "single_choice",
+      "difficulty": 3,
+      "category": "pod",
+      "question": "readinessProbe（就绪探针）失败会导致？",
+      "options": [
+        "A. 容器立即重启",
+        "B. Pod从Service的Endpoints中摘除，不再接收新流量",
+        "C. 节点驱逐Pod",
+        "D. 镜像重新拉取"
+      ],
+      "correct_answer": "B",
+      "explanation": "就绪探针失败只是让Pod退出就绪状态（不接流量），并不会重启容器；livenessProbe失败才触发重启。",
+      "tags": [],
+      "related_commands": [],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T19:44:34.214599"
+    },
+    {
+      "id": "d3_pod_003",
+      "type": "single_choice",
+      "difficulty": 3,
+      "category": "pod",
+      "question": "restartPolicy: Never 时，容器退出后Pod的状态是？",
+      "options": [
+        "A. Running",
+        "B. Failed或Succeeded（按退出码）",
+        "C. CrashLoopBackOff",
+        "D. Pending"
+      ],
+      "correct_answer": "B",
+      "explanation": "Never策略不重启容器，退出码0为Succeeded、非0为Failed；Always才会反复重启。",
+      "tags": [],
+      "related_commands": [
+        "kubectl get pods"
+      ],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T19:44:34.214599"
+    },
+    {
+      "id": "d3_pod_004",
+      "type": "single_choice",
+      "difficulty": 3,
+      "category": "pod",
+      "question": "postStart与preStop生命周期钩子的正确说法是？",
+      "options": [
+        "A. postStart在容器启动后异步触发，preStop在收到终止信号后调用",
+        "B. postStart在镜像拉取前执行",
+        "C. preStop会阻塞容器收到SIGTERM",
+        "D. 二者失败都会重启节点"
+      ],
+      "correct_answer": "A",
+      "explanation": "postStart在容器创建后立即调用（与ENTRYPOINT并发），preStop在终止流程开始时调用，之后才发SIGTERM。",
+      "tags": [],
+      "related_commands": [],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T19:44:34.214599"
+    },
+    {
+      "id": "d3_pod_005",
+      "type": "single_choice",
+      "difficulty": 3,
+      "category": "pod",
+      "question": "Pod的terminationGracePeriodSeconds默认值是？",
+      "options": [
+        "A. 10秒",
+        "B. 30秒",
+        "C. 60秒",
+        "D. 300秒"
+      ],
+      "correct_answer": "B",
+      "explanation": "默认宽限期30秒：preStop执行与进程优雅退出需在期内完成，超时强制SIGKILL。",
+      "tags": [],
+      "related_commands": [],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T19:44:34.214599"
+    },
+    {
+      "id": "d3_pod_006",
+      "type": "single_choice",
+      "difficulty": 3,
+      "category": "pod",
+      "question": "Pod内多个容器共享的是？",
+      "options": [
+        "A. 网络命名空间（同一IP）",
+        "B. 各自的文件系统",
+        "C. 独立的PID命名空间（默认）",
+        "D. 不同的localhost"
+      ],
+      "correct_answer": "A",
+      "explanation": "同一Pod的容器共享网络栈（同一IP/端口空间，localhost互通），文件系统默认互相隔离。",
+      "tags": [],
+      "related_commands": [],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T19:44:34.214599"
+    },
+    {
+      "id": "d3_pod_007",
+      "type": "single_choice",
+      "difficulty": 3,
+      "category": "pod",
+      "question": "envFrom字段的作用是？",
+      "options": [
+        "A. 从ConfigMap或Secret批量注入环境变量",
+        "B. 设置Pod级别的代理",
+        "C. 挂载数据卷",
+        "D. 注入宿主机内核参数"
+      ],
+      "correct_answer": "A",
+      "explanation": "envFrom引用ConfigMap/Secret，把其中每个键值对作为环境变量批量注入容器。",
+      "tags": [],
+      "related_commands": [
+        "kubectl describe pod"
+      ],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T19:44:34.214599"
+    },
+    {
+      "id": "d3_pod_008",
+      "type": "single_choice",
+      "difficulty": 3,
+      "category": "pod",
+      "question": "startupProbe（启动探针）的意义是？",
+      "options": [
+        "A. 替代readinessProbe",
+        "B. 给启动慢的应用留出初始化时间，在它成功前屏蔽liveness/readiness探测",
+        "C. 检测节点是否就绪",
+        "D. 校验镜像签名"
+      ],
+      "correct_answer": "B",
+      "explanation": "startupProbe成功之前，liveness/readiness不生效，避免慢启动应用被误杀。",
+      "tags": [],
+      "related_commands": [],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T19:44:34.214599"
+    },
+    {
+      "id": "d3_pod_009",
+      "type": "single_choice",
+      "difficulty": 3,
+      "category": "pod",
+      "question": "Static Pod（静态Pod）由谁管理？",
+      "options": [
+        "A. Deployment控制器",
+        "B. kubelet直接根据本机清单文件创建，不受API Server调度",
+        "C. kube-scheduler",
+        "D. DaemonSet"
+      ],
+      "correct_answer": "B",
+      "explanation": "静态Pod由kubelet监听指定目录的清单直接管理，常见于自托管控制平面组件。",
+      "tags": [],
+      "related_commands": [],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T19:44:34.214599"
+    },
+    {
+      "id": "d4_pod_010",
+      "type": "single_choice",
+      "difficulty": 4,
+      "category": "pod",
+      "question": "Pod的QoS为Burstable的条件是？",
+      "options": [
+        "A. 所有容器requests==limits",
+        "B. 至少一个容器设置了requests或limits，且不满足Guaranteed条件",
+        "C. 完全不设置资源",
+        "D. 只设置了CPU"
+      ],
+      "correct_answer": "B",
+      "explanation": "Burstable介于两者之间：部分设置资源或requests≠limits；全不设为BestEffort。",
+      "tags": [],
+      "related_commands": [],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T19:44:34.214599"
+    },
+    {
+      "id": "d4_pod_011",
+      "type": "single_choice",
+      "difficulty": 4,
+      "category": "pod",
+      "question": "Pod优先级与抢占（Priority & Preemption）机制下，低优先级Pod何时被驱逐？",
+      "options": [
+        "A. 节点内存压力时最先",
+        "B. 高优先级Pod因资源不足Pending，且驱逐低优先级Pod后可放置时",
+        "C. 定时轮换",
+        "D. 命名空间配额超限"
+      ],
+      "correct_answer": "B",
+      "explanation": "调度器尝试放置高优先级Pod失败时评估抢占：删除 victims 使其可调度，被驱逐的是低优先级Pod。",
+      "tags": [],
+      "related_commands": [
+        "kubectl get priorityclass"
+      ],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T19:44:34.214599"
+    },
+    {
+      "id": "d4_pod_012",
+      "type": "single_choice",
+      "difficulty": 4,
+      "category": "pod",
+      "question": "Ephemeral Containers（临时容器）的主要用途是？",
+      "options": [
+        "A. 扩展持久存储",
+        "B. 向运行中的Pod注入调试工具容器（如kubectl debug）",
+        "C. 替代init容器",
+        "D. 承载Sidecar代理"
+      ],
+      "correct_answer": "B",
+      "explanation": "临时容器不能设端口/资源、不重启，专为在线排障设计（kubectl debug -it pod --image=busybox）。",
+      "tags": [],
+      "related_commands": [
+        "kubectl debug"
+      ],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T19:44:34.214599"
+    },
+    {
+      "id": "d5_pod_013",
+      "type": "single_choice",
+      "difficulty": 5,
+      "category": "pod",
+      "question": "Pod的dnsPolicy默认值ClusterFirst的行为是？",
+      "options": [
+        "A. 所有查询都发往宿主机DNS",
+        "B. 集群域名查询走CoreDNS，外部域名按上游配置转发",
+        "C. 完全禁用DNS",
+        "D. 强制使用NodeLocal DNS"
+      ],
+      "correct_answer": "B",
+      "explanation": "ClusterFirst将集群内域名交给CoreDNS解析，外部域名按CoreDNS上游转发；None需自配dnsConfig。",
+      "tags": [],
+      "related_commands": [],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T19:44:34.214599"
+    },
+    {
+      "id": "d5_pod_014",
+      "type": "multiple_choice",
+      "difficulty": 5,
+      "category": "pod",
+      "question": "下列哪些属于Projected类型的Volume？（多选）",
+      "options": [
+        "A. serviceAccountToken",
+        "B. secret",
+        "C. downwardAPI",
+        "D. configMap与hostPath"
+      ],
+      "correct_answer": [
+        "A",
+        "B",
+        "C"
+      ],
+      "explanation": "Projected卷可同时投影serviceAccountToken、Secret、downwardAPI、ConfigMap；hostPath不属于。",
+      "tags": [],
+      "related_commands": [],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T19:44:34.214599"
+    },
+    {
+      "id": "d4_dep_001",
+      "type": "single_choice",
+      "difficulty": 4,
+      "category": "deployment",
+      "question": "滚动更新中 maxSurge=1, maxUnavailable=0 的含义是？",
+      "options": [
+        "A. 更新期间最多多启1个副本，且不可用副本数不允许超过期望值",
+        "B. 先删1个再加1个",
+        "C. 始终维持恰好期望数副本且可超卖",
+        "D. 瞬时全量替换"
+      ],
+      "correct_answer": "A",
+      "explanation": "maxSurge允许临时超出期望副本数，maxUnavailable=0保证全程服务容量不减，代价是资源占用略高。",
+      "tags": [],
+      "related_commands": [
+        "kubectl rollout status"
+      ],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T19:44:34.214599"
+    },
+    {
+      "id": "d4_dep_002",
+      "type": "single_choice",
+      "difficulty": 4,
+      "category": "deployment",
+      "question": "kubectl rollout undo 的作用是？",
+      "options": [
+        "A. 暂停更新",
+        "B. 回滚到上一个或指定revision的ReplicaSet",
+        "C. 删除Deployment",
+        "D. 强制重启Pod"
+      ],
+      "correct_answer": "B",
+      "explanation": "Deployment保留旧RS作为版本历史，undo通过将目标RS扩容/新RS缩容实现回滚。",
+      "tags": [],
+      "related_commands": [
+        "kubectl rollout undo"
+      ],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T19:44:34.214599"
+    },
+    {
+      "id": "d4_dep_003",
+      "type": "single_choice",
+      "difficulty": 4,
+      "category": "deployment",
+      "question": "minReadySeconds字段的作用是？",
+      "options": [
+        "A. 限制镜像最小构建时间",
+        "B. 新Pod须保持Ready达到该时长，才继续推进滚动更新，用于观察稳定性",
+        "C. Pod最小运行时长否则驱逐",
+        "D. Service转发延迟"
+      ],
+      "correct_answer": "B",
+      "explanation": "配合readinessProbe，minReadySeconds防止新版本刚就绪就出问题时更新继续推进。",
+      "tags": [],
+      "related_commands": [
+        "kubectl rollout pause"
+      ],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T19:44:34.214599"
+    },
+    {
+      "id": "d4_dep_004",
+      "type": "single_choice",
+      "difficulty": 4,
+      "category": "deployment",
+      "question": "revisionHistoryLimit的作用是？",
+      "options": [
+        "A. 限制Pod重启次数",
+        "B. 控制保留多少个旧ReplicaSet用于回滚",
+        "C. 限制副本数上限",
+        "D. 设置历史日志大小"
+      ],
+      "correct_answer": "B",
+      "explanation": "默认保留10个旧RS；设为0则不保留历史（无法回滚到旧版本）。",
+      "tags": [],
+      "related_commands": [
+        "kubectl get rs"
+      ],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T19:44:34.214599"
+    },
+    {
+      "id": "d5_dep_005",
+      "type": "single_choice",
+      "difficulty": 5,
+      "category": "deployment",
+      "question": "Deployment的progressDeadlineSeconds超时后会发生？",
+      "options": [
+        "A. 自动回滚到上一版本",
+        "B. Deployment标记Progressing=False（progress timeout条件），滚动更新停滞需人工介入",
+        "C. 删除所有Pod",
+        "D. 自动扩容副本"
+      ],
+      "correct_answer": "B",
+      "explanation": "超时仅更新状态条件并触发事件（进度停滞），不会自动回滚——自动回滚需外部工具（如Argo Rollouts）。",
+      "tags": [],
+      "related_commands": [
+        "kubectl describe deployment"
+      ],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T19:44:34.214599"
+    },
+    {
+      "id": "d5_dep_006",
+      "type": "single_choice",
+      "difficulty": 5,
+      "category": "deployment",
+      "question": "滚动更新时新旧ReplicaSet之间的属主与缩放关系是？",
+      "options": [
+        "A. 新RS无属主，独立于Deployment",
+        "B. Deployment同时缩放两个RS：新RS按比例扩容，旧RS按比例缩容直至归零",
+        "C. 旧RS立即删除",
+        "D. 由HPA直接管理两个RS副本数"
+      ],
+      "correct_answer": "B",
+      "explanation": "Deployment作为属主控制器，按maxSurge/maxUnavailable节奏同时调整新旧RS的replicas。",
+      "tags": [],
+      "related_commands": [
+        "kubectl get rs -l app=nginx"
+      ],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T19:44:34.214599"
+    },
+    {
+      "id": "d1_sec_001",
+      "type": "single_choice",
+      "difficulty": 1,
+      "category": "security",
+      "question": "RBAC（基于角色的访问控制）中，Role定义了什么？",
+      "options": [
+        "A. 集群的物理资源",
+        "B. 一组对资源的操作权限规则",
+        "C. Pod的网络策略",
+        "D. 容器镜像清单"
+      ],
+      "correct_answer": "B",
+      "explanation": "Role在命名空间内声明可对哪些资源执行哪些动词（get/list/create/delete…）。",
+      "tags": [],
+      "related_commands": [
+        "kubectl get roles"
+      ],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T19:44:34.214599"
+    },
+    {
+      "id": "d1_sec_002",
+      "type": "single_choice",
+      "difficulty": 1,
+      "category": "security",
+      "question": "将权限授予用户，需要创建哪种资源？",
+      "options": [
+        "A. RoleBinding",
+        "B. ConfigMap",
+        "C. Endpoint",
+        "D. DaemonSet"
+      ],
+      "correct_answer": "A",
+      "explanation": "RoleBinding把Role（或ClusterRole）绑定到User/Group/ServiceAccount，权限才生效。",
+      "tags": [],
+      "related_commands": [
+        "kubectl get rolebindings"
+      ],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T19:44:34.214599"
+    },
+    {
+      "id": "d1_sec_003",
+      "type": "single_choice",
+      "difficulty": 1,
+      "category": "security",
+      "question": "Secret与ConfigMap最主要的区别是？",
+      "options": [
+        "A. Secret数据更小",
+        "B. Secret用于存放敏感数据，默认以base64编码存储",
+        "C. Secret不能挂载",
+        "D. 二者无区别"
+      ],
+      "correct_answer": "B",
+      "explanation": "Secret面向密码/令牌等敏感信息，base64编码存储；生产应配合etcd加密与RBAC限制访问。",
+      "tags": [],
+      "related_commands": [
+        "kubectl get secrets"
+      ],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T19:44:34.214599"
+    },
+    {
+      "id": "d1_sec_004",
+      "type": "single_choice",
+      "difficulty": 1,
+      "category": "security",
+      "question": "ServiceAccount（服务账号）的作用是？",
+      "options": [
+        "A. 给人类管理员登录",
+        "B. 给Pod内进程访问API Server提供身份",
+        "C. 存储容器密码",
+        "D. 管理节点证书"
+      ],
+      "correct_answer": "B",
+      "explanation": "Pod默认挂载其ServiceAccount的token，用于以该身份调用Kubernetes API。",
+      "tags": [],
+      "related_commands": [
+        "kubectl get sa"
+      ],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T19:44:34.214599"
+    },
+    {
+      "id": "d1_sec_005",
+      "type": "true_false",
+      "difficulty": 1,
+      "category": "security",
+      "question": "securityContext中设置runAsNonRoot: true可强制容器以非root用户运行",
+      "options": null,
+      "correct_answer": "True",
+      "explanation": "该字段要求容器进程的UID非0，配合镜像内普通用户使用；不满足时容器无法启动。",
+      "tags": [],
+      "related_commands": [],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T19:44:34.214599"
+    },
+    {
+      "id": "d2_sec_006",
+      "type": "true_false",
+      "difficulty": 2,
+      "category": "security",
+      "question": "RoleBinding可以绑定ClusterRole，把其权限收敛到本命名空间内使用",
+      "options": null,
+      "correct_answer": "True",
+      "explanation": "复用ClusterRole+命名空间RoleBinding是常见模式：一份权限定义，各命名空间独立授予。",
+      "tags": [],
+      "related_commands": [
+        "kubectl get rolebindings -A"
+      ],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T19:44:34.214599"
+    },
+    {
+      "id": "d2_sec_007",
+      "type": "single_choice",
+      "difficulty": 2,
+      "category": "security",
+      "question": "NetworkPolicy默认行为是？",
+      "options": [
+        "A. 默认全放行，一旦有策略选中Pod，未被放行的流量将被拒绝",
+        "B. 默认全拒绝",
+        "C. 只拦截Pod间流量不影响外部",
+        "D. 仅在节点重启后生效"
+      ],
+      "correct_answer": "A",
+      "explanation": "策略是加性的白名单：Pod被策略选中后，未明确允许的入/出流量被拒绝；未被选中的Pod不受限。",
+      "tags": [],
+      "related_commands": [
+        "kubectl get networkpolicy"
+      ],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T19:44:34.214599"
+    },
+    {
+      "id": "d2_sec_008",
+      "type": "true_false",
+      "difficulty": 2,
+      "category": "security",
+      "question": "将Secret以环境变量方式注入容器，泄漏后需要重建Secret与所有相关Pod来更换",
+      "options": null,
+      "correct_answer": "True",
+      "explanation": "环境变量在容器启动时固化，更换Secret不会自动生效；相比之下挂载为Volume会随更新刷新。",
+      "tags": [],
+      "related_commands": [],
+      "source": "章节试炼补充",
+      "created_at": "2026-08-28T19:44:34.214599"
     }
   ]
 }
