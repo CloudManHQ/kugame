@@ -1,0 +1,48 @@
+{
+  "title": "KuGame GTM 页 · 视觉方向",
+  "question": "锁定卷首方向、取备选、或重掷一次。",
+  "options": [
+    {
+      "id": "assigned",
+      "label": "修仙长卷 · 青绿山水",
+      "kicker": "THE ROLL",
+      "lineage": "北宋青绿山水长卷（《千里江山图》绢本传统）· 界画 · 碑帖题跋",
+      "thesis": "GTM 页即一卷可游的修行长卷：访客从卷首入卷，山脚是凡人，山径上嵌着真实 kubectl 功法碑，沿十重峰峦登顶金仙——学 K8s 的全程就是展开这卷画。",
+      "palette": ["#1d2b36", "#3a6ea5", "#5c8f6a", "#d4a94e", "#c3392e"],
+      "materials": ["绢本设色（矿物颜料）", "朱印篆刻", "界画楼阁", "题跋"],
+      "viewport": "首屏即画：横幅青绿山水铺满视口，右下山脚一粒凡人小像，山脊十境节点以泥金逐层点亮，画心钤朱砂大印「开始修炼」，侧印「GitHub 收藏」。",
+      "risk": "工程味压不住就会被读成装饰画——真实命令碑刻与终端证据必须入画。",
+      "comp": ".impeccable/mocks/decision/assigned.png"
+    },
+    {
+      "id": "model-pick",
+      "label": "功法秘籍 · 朱墨套印",
+      "kicker": "IMPECCABLE’S PICK",
+      "lineage": "明代朱墨套印刻本 · 线装书 · 眉批夹注",
+      "thesis": "GTM 页即一部摊开的修仙秘籍刻本：墨印正文刻真实 K8s 命令，朱批侧注讲功法要诀，一页一境界，卷末钤印领取全卷。",
+      "palette": ["#f5efe0", "#1f1c18", "#c3392e"],
+      "materials": ["木版印刷", "朱墨套印", "界行竖栏", "线装"],
+      "viewport": "整屏一页秘籍：界行竖栏、墨印 kubectl 命令、朱批侧注、书耳线装孔，页脚朱印「领取全卷」。",
+      "risk": "书卷题材的默认解正是纸底加衬线——此卡只在大面积朱色套印与界行密度全数到位时才成立，且是同类题材最常见的落点。",
+      "comp": ".impeccable/mocks/decision/model-pick.png"
+    }
+  ],
+  "reroll": {
+    "registers": ["safer", "bolder"]
+  },
+  "buildPath": {
+    "value": "comp",
+    "toggle": true
+  },
+  "canon": true,
+  "canonCard": {
+    "label": "同类标准款",
+    "thesis": "这个品类一贯的落地页，做到极致的样子：深色大 hero、霓虹渐变、截图网格、三列特性卡。",
+    "palette": ["#0b1220", "#3b82f6", "#f59e0b", "#f8fafc"],
+    "materials": ["玻璃拟态卡片", "霓虹渐变", "产品截图网格"],
+    "viewport": "深色 hero + 截图网格 + 三列特性，访客完全预期的排布。",
+    "risk": "与竞品不可区分是它的设计使然。",
+    "comp": ".impeccable/mocks/decision/canon.png"
+  },
+  "steer": true
+}
